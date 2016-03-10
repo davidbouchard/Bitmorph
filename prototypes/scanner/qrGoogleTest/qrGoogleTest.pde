@@ -1,42 +1,54 @@
 //Processing app using Google QR Code api to batch create QR Codes based on 4-letter configurations
 //Code by Bram
 
+//Arraylists for storing the images and accountCodes
 ArrayList<PImage> images = new ArrayList(); 
 ArrayList<String> accountCodes = new ArrayList();
 
-PImage average;
-
+//integer to store which code is currently displayed
 int currentCode = 0;
 
+int totalAccountNumb = 456976; ///26*26*26*26
+int totalAccountsSaved = 0;
+
+//setup function
 void setup()
 {
   size(600, 600);
 
-  average = createImage(150, 150, RGB);
-
+  //use seperate thread to speed up QR creation
   thread("loadImages"); // run it on the side
 }
 
+//draw function
 void draw()
 {
   background(0);
+  
+  //make sure there is atleast one image to be displayed before displaying anything
   if (images.size() > 0)
   {
+    //allows for previewing the QR code
     image(images.get(currentCode), width/2-50, height/2-50);
     textSize(21);
     text("Account# " + currentCode + " Account Code: "+ accountCodes.get(currentCode), width/4, 20);
   }
 
-  //for(int i = 0; i < images.size(); i++)
-  //{
-  //  int tempint = int(random(0,images.size()));
-  //  image(images.get(tempint),0,0);
-  //}
+  text("Saving Account " + totalAccountsSaved + " of " + totalAccountNumb + "...", width/3,height-30);    //display the number of QR Codes currently saved
 }
 
-
+//loadImages function
+//this function does the bulk of the work
+//it dynamically creates a query for the google api to generate a QR Code based on a 4-letter configuration
+// i.e. aaaa
+//      aaab
+//      aaac
+//      ..etc..
+//
+// the 4-letter configuration allows for the hundreds of thousands of user accounts and QR codes to be made
 void loadImages()
 {
+  //Four nested for-loops allows for the letter combinations
   for (int a = 0; a < 26; a++)
   {
     for (int b = 0; b < 26; b++)
@@ -45,11 +57,14 @@ void loadImages()
       {
         for (int d = 0; d < 26; d++)
         {
-          String query = "https://chart.googleapis.com/chart?"; 
-          query += "chs=100x100";
-          query += "&cht=qr";
-          query += "&chl=";
+          //the line of code we run to retrieve the QR code
+          String query = "https://chart.googleapis.com/chart?";   //main url of the link
+          query += "chs=100x100";                                //size of the image
+          query += "&cht=qr";                                    //type of image we want (QR code)
+          query += "&chl=";                                      //attribute for the characters we want to store in the QR code
           String accountCode = "";
+          
+          //four seperate switch cases adds the characters we need based on the for-loop iterators
           switch(a)
           {
           case 0:
@@ -385,15 +400,21 @@ void loadImages()
             accountCode +="a";
             break;
           }
-          accountCodes.add(accountCode);
-          query += accountCode;
-          PImage img = loadImage(query, "png");
-          images.add(img);
-          PImage localCopy = createImage(100,100,RGB);
-          localCopy = img.get();
-          String filename = "C:\\Users\\Bram\\Desktop\\qrGoogleTest\\" + accountCode + ".jpg";
           
+          accountCodes.add(accountCode);    //store the account code so we can preview it
+          
+          query += accountCode;              //add the code to the query
+          
+          PImage img = loadImage(query, "png");  //store the image we get from the query as a png
+          images.add(img);
+          
+          PImage localCopy = createImage(100,100,RGB);    //save a local copy
+          localCopy = img.get();
+          String filename = sketchPath()+ "\\QR Codes\\" + accountCode + ".jpg";    //save it in to the QR Codes folder in the sketch directory
           localCopy.save(filename);
+          
+          totalAccountsSaved++;
+          
           
         }
       }
@@ -401,12 +422,10 @@ void loadImages()
   }
 }
 
+//overloaded mousePressed eventHandler
+//LMB and RMB cycles through the QR Code previews
 void mousePressed()
 {
-  //tint(255, 128); 
-  //int tempint = int(random(0, images.size()));
-  //image(images.get(tempint), 0, 0);
-
   if (mouseButton == LEFT)
   {
     currentCode++;
