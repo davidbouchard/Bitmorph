@@ -11,6 +11,11 @@ int currentCode = 0;
 int totalAccountNumb = 456976; ///26*26*26*26
 int totalAccountsSaved = 0;
 
+File fChecker;
+String filename; 
+PImage img;
+PImage localCopy;
+
 //setup function
 void setup()
 {
@@ -24,7 +29,7 @@ void setup()
 void draw()
 {
   background(0);
-  
+
   //make sure there is atleast one image to be displayed before displaying anything
   if (images.size() > 0)
   {
@@ -34,7 +39,7 @@ void draw()
     text("Account# " + currentCode + " Account Code: "+ accountCodes.get(currentCode), width/4, 20);
   }
 
-  text("Saving Account " + totalAccountsSaved + " of " + totalAccountNumb + "...", width/3,height-30);    //display the number of QR Codes currently saved
+  text("Saving Account " + totalAccountsSaved + " of " + totalAccountNumb + "...", width/3, height-30);    //display the number of QR Codes currently saved
 }
 
 //loadImages function
@@ -63,7 +68,7 @@ void loadImages()
           query += "&cht=qr";                                    //type of image we want (QR code)
           query += "&chl=";                                      //attribute for the characters we want to store in the QR code
           String accountCode = "";
-          
+
           //four seperate switch cases adds the characters we need based on the for-loop iterators
           switch(a)
           {
@@ -400,22 +405,23 @@ void loadImages()
             accountCode +="a";
             break;
           }
-          
+
           accountCodes.add(accountCode);    //store the account code so we can preview it
-          
+
           query += accountCode;              //add the code to the query
-          
-          PImage img = loadImage(query, "png");  //store the image we get from the query as a png
+
+          img = loadImage(query, "jpg");  //store the image we get from the query as a jpg
           images.add(img);
-          
-          PImage localCopy = createImage(100,100,RGB);    //save a local copy
-          localCopy = img.get();
-          String filename = sketchPath()+ "\\QR Codes\\" + accountCode + ".jpg";    //save it in to the QR Codes folder in the sketch directory
-          localCopy.save(filename);
-          
+
+          filename = sketchPath()+ "\\QR Codes\\" + accountCode + ".jpg";
+          fChecker = new File(filename);
+          if (fChecker.exists() == false) {    //check to see if the file exists or not
+            //save it in to the QR Codes folder in the sketch directory
+            localCopy = createImage(100, 100, RGB);    //save a local copy
+            localCopy = img.get();
+            localCopy.save(filename);
+          }  
           totalAccountsSaved++;
-          
-          
         }
       }
     }
