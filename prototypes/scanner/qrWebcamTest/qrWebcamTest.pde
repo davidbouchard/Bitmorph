@@ -12,7 +12,7 @@ String status;
 Decoder decoder;
 
 int timer = 0;
-int timerDelay = 1000;
+int timerDelay = 500;
 
 void setup()
 {
@@ -36,6 +36,16 @@ void draw()
   textSize(20);
   text(status, 10, height-20);
 
+  if (millis() > timer)
+  {
+    PImage savedFrame = createImage(video.width, video.height, RGB);
+    savedFrame.copy(video, 0, 0, video.width, video.height, 0, 0, video.width, video.height);
+    savedFrame.updatePixels();
+    decoder.decodeImage(savedFrame);
+
+    timer = millis()+timerDelay;
+  }
+
   if (decoder.decoding())
   {
     PImage show = decoder.getImage();
@@ -44,16 +54,6 @@ void draw()
     for (int i = 0; i < (frameCount/2) % 10; i++) 
     {
       status += ".";
-    }
-
-    if (millis() > timer)
-    {
-      PImage savedFrame = createImage(video.width, video.height, RGB);
-      savedFrame.copy(video, 0, 0, video.width, video.height, 0, 0, video.width, video.height);
-      savedFrame.updatePixels();
-      decoder.decodeImage(savedFrame);
-
-      timer = millis()+timerDelay;
     }
   }
 }
