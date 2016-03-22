@@ -14,8 +14,7 @@ Decoder decoder;
 int timer = 0;
 int timerDelay = 500;
 
-void setup()
-{
+void setup() {
   size(400, 320);
   video = new Capture(this, 320, 240);
   video.start();
@@ -27,8 +26,7 @@ void setup()
   timer = millis();
 }
 
-void draw()
-{
+void draw() {
   background(0);
 
   image(video, 0, 0);
@@ -36,8 +34,7 @@ void draw()
   textSize(20);
   text(status, 10, height-20);
 
-  if (millis() > timer)
-  {
+  if (millis() > timer) {
     PImage savedFrame = createImage(video.width, video.height, RGB);
     savedFrame.copy(video, 0, 0, video.width, video.height, 0, 0, video.width, video.height);
     savedFrame.updatePixels();
@@ -46,20 +43,17 @@ void draw()
     timer = millis()+timerDelay;
   }
 
-  if (decoder.decoding())
-  {
+  if (decoder.decoding()) {
     PImage show = decoder.getImage();
     image(show, 0, 0, show.width/4, show.height/4); 
     status = "Decoding image";
-    for (int i = 0; i < (frameCount/2) % 10; i++) 
-    {
+    for (int i = 0; i < (frameCount/2) % 10; i++) {
       status += ".";
     }
   }
 }
 
-void decoderEvent(Decoder decoder)
-{
+void decoderEvent(Decoder decoder) {
   status = decoder.getDecodedString();
 }
 
