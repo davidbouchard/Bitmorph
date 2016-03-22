@@ -49,3 +49,29 @@ class Configurator {
 	    $this->set_property($index, $value);
 	}
 }
+
+/* Overly applicaiton-specific idea from Geelu's code
+class Configurator_v0 {
+	private $globalConfig;
+	function __construct($file) {
+		if (!($this->globalConfig = parse_ini_file($file,true))) {
+			throw new Exception("Configurator: Couldn't load '"+$file+"'");
+		}
+	}
+	function getConfig($scope) {
+		$passConfig = array();
+		$globalConfig = $this->globalConfig;
+		foreach($globalConfig as $key => $val) if (!is_array($val)) {
+			$passConfig[$key] = $val;
+		}
+		if (array_key_exists($scope, $globalConfig)) {
+			foreach($globalConfig[$scope] as $key => $val) {
+				$passConfig[$key] = $val;
+			}
+		} else {
+
+		}
+		return $passConfig;
+	}
+}
+*/

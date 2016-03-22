@@ -4,7 +4,7 @@ require_once("./ta_framework.php");
 
 function main() {
 	IncludePathHandler::add_include_path(FRAMEWORK_PATH.DIRECTORY_SEPARATOR."lib");
-	
+
 	// Setup some tools for this website
 	$dbConfig = new Configurator();
 	$dbConfig->set_from_ini_file(SITE_PATH."/config/database_mysql.ini");
