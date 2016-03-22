@@ -70,6 +70,8 @@ void loadImages()
           query += "chs=100x100";                                //size of the image
           query += "&cht=qr";                                    //type of image we want (QR code)
           query += "&chl=";                                      //attribute for the characters we want to store in the QR code
+          String url = "Science+Center+URL+";
+          query += url;
           String accountCode = "";
 
           //four seperate switch cases adds the characters we need based on the for-loop iterators
@@ -412,7 +414,7 @@ void loadImages()
           accountCodes.add(accountCode);    //store the account code so we can preview it
 
           query += accountCode;              //add the code to the query
-
+          query += "&choe=UTF-8";
 
           status = "Querying account " + accountCode;
 
