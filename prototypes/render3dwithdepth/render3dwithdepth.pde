@@ -51,6 +51,11 @@ int pSize = 13; // Expand from single pixel to box width
 int extrudeLayer1 = 5; // Depth layer
 int extrudeLayer2 = 10;
 
+Model model;
+
+// PImage[] characters;
+// PIMage[] space_assets; 
+
 void setup() {
   size(800, 800, P3D);
 
@@ -61,9 +66,8 @@ void setup() {
   eggSpa0101Depth = loadImage("01egg/spa_0101d.png");
 
   adultInn0101Sprite = loadImage("03adult/inn_0101.png");
-  adultInn0101Depth = loadImage("03adult/inn_0101d.png");
-  adultInn0101DepthGrey = loadImage("03adult/inn_0101dc.png");
-
+  adultInn0101Depth = loadImage("03adult/inn_0101d_bw.png");
+ 
   adultLiv0101Sprite = loadImage("03adult/liv_0101.png");
   adultLiv0101Depth = loadImage("03adult/liv_0101d.png");
 
@@ -84,6 +88,9 @@ void setup() {
 
   //json = loadJSONObject("http://mnemosyne.lucastengdev.com:8888/OSC/update_character/ffffee/sci");
   //assetOnline = loadImage("http://mnemosyne.lucastengdev.com:8888/OSC/character/ffffee", "png");
+  
+  
+  model = new Model(adultInn0101Sprite, adultInn0101Depth);
 }
 
 void draw() {
@@ -92,24 +99,29 @@ void draw() {
   translate(width/2, height/2); // translate (0, 0) to center of window
   rotateY(frameCount/100.0); // rotate object on Y axis
 
+  model.render();
+
   //if (json.getJSONObject("0.sprite") == true
 
-  if (eggSprite != null) {
-    displayEgg(eggSprite, eggDepth);
-  }
+//  if (eggSprite != null) {
+//    displayEgg(eggSprite, eggDepth);
+//  }
 
-  if (adultSprite != null) {
-    displayAdult(adultSprite, adultDepth); // Displays the Adult Sprite front and back with depth map for front and back
-  }
+//  if (adultSprite != null) {
+//    displayAdult(adultSprite, adultDepth); // Displays the Adult Sprite front and back with depth map for front and back
+//  }
 
-  if (acc1Sprite != null) {
-    displayAcc1(acc1Sprite, acc1Depth);
-  }
+//  if (acc1Sprite != null) {
+//    displayAcc1(acc1Sprite, acc1Depth);
+//  }
 
-  if (acc2Sprite != null) {
-    displayAcc2(acc2Sprite, acc2Depth);
-  }
+//  if (acc2Sprite != null) {
+//    displayAcc2(acc2Sprite, acc2Depth);
+//  }
 } // End of draw()
+
+// eventually get rid of everything below >>>>
+
 
 void displayEgg(PImage eggAsset, PImage eggAssetDepth) {
   // EGG FRONT AND BACK ==============================================================================================================
