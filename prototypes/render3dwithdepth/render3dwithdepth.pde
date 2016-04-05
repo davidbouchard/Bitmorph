@@ -1,5 +1,6 @@
-//Processing sketch that uses pixel assets to scales and transform it into 3D space
-// sam legros
+// Processing sketch that uses pixel assets to scales and transform it into 3D space
+// Sam Legros
+
 PImage egg;
 PImage eggDepth;
 
@@ -18,6 +19,11 @@ PImage bodyDepth;
 PImage bodyBack;
 PImage bodyBackDepth;
 
+PImage body2;
+PImage bodyDepth2;
+PImage bodyBack2;
+PImage bodyBackDepth2;
+
 PImage accessory1;
 PImage accessory1Depth;
 
@@ -25,6 +31,10 @@ PImage accessory2;
 PImage accessory2Depth;
 
 Model model;
+
+
+
+
 
 void setup() {
   size(800, 800, P3D);
@@ -47,6 +57,12 @@ void setup() {
   bodyBack = loadImage("testAssets/04bodyback.png");
   bodyBackDepth = loadImage("testAssets/04bodybackdepth.png");
 
+  body2 = loadImage("testAssets/inn_0101.png");
+  bodyDepth2 = loadImage("testAssets/inn_0101d.png");
+  bodyBack2 = loadImage("testAssets/inn_0102.png");
+  bodyBackDepth2 = loadImage("testAssets/inn_0102d.png");
+
+
   accessory1 = loadImage("testAssets/05accessory.png");
   accessory1Depth = loadImage("testAssets/05accessorydepth.png");
 
@@ -56,113 +72,31 @@ void setup() {
   //json = loadJSONObject("http://mnemosyne.lucastengdev.com:8888/OSC/update_character/ffffee/sci");
   //assetOnline = loadImage("http://mnemosyne.lucastengdev.com:8888/OSC/character/ffffee", "png");
 
-  model = new Model(body, bodyDepth);
-}
+  //model = new Model(body, bodyDepth, bodyBack, bodyBackDepth);
+  model = new Model(body2, bodyDepth2, bodyBack2, bodyBackDepth2);
+}    // End of setup()
+
+
+
+
 
 void draw() {
   background(128);
-  lights(); // Lights creates shadowing effect
-  translate(width/2, height/2); // translate (0, 0) to center of window
-  rotateY(frameCount/100.0); // rotate object on Y axis
+  lights();    // Lights creates shadowing effect
+  translate(width/2, height/2);    // translate (0, 0) to center of window
+  rotateY(frameCount/100.0);    // rotate object on Y axis
 
-  model.render();
+  model.render();    // Render model
+}    // End of draw()
 
-  //if (json.getJSONObject("0.sprite") == true
 
-  //  if (eggSprite != null) {
-  //    displayEgg(eggSprite, eggDepth);
-  //  }
 
-  //  if (adultSprite != null) {
-  //    displayAdult(adultSprite, adultDepth); // Displays the Adult Sprite front and back with depth map for front and back
-  //  }
 
-  //  if (acc1Sprite != null) {
-  //    displayAcc1(acc1Sprite, acc1Depth);
-  //  }
 
-  //  if (acc2Sprite != null) {
-  //    displayAcc2(acc2Sprite, acc2Depth);
-  //  }
-} // End of draw()
-
-//void removeEgg() {
-// eggSprite = null;
-// eggDepth = null;
-//} // End of removeEgg()
-
-//void removeAdult() {
-// adultSprite = null;
-// adultDepth = null;
-//} // End of removeAdult()
-
-//void removeAcc1() {
-// acc1Sprite = null;
-// acc1Depth = null;
-//}
-
-//void removeAcc2() {
-// acc2Sprite = null;
-// acc2Depth = null;
-//}
-
-//// KEY PRESSED TESTING ==============================================================================================================
-//void keyPressed() {
-// switch(key) {
-// case '1':
-//   removeEgg();
-//   removeAdult();
-//   removeAcc1();
-//   removeAcc2();
-//   int rand1 = int(random(1, 3));
-//   if (rand1 == 1) {
-//     eggSprite = eggInn0101Sprite;
-//     eggDepth = eggInn0101Depth;
-//   } else {
-//     eggSprite = eggSpa0101Sprite;
-//     eggDepth = eggSpa0101Depth;
-//   }
-//   break;
-
-// case '2':
-//   removeEgg();
-//   removeAcc1();
-//   removeAcc2();
-//   int rand2 = int(random(1, 4));
-//   if (rand2 == 1) {
-//     adultSprite = adultInn0101Sprite;
-//     adultDepth = adultInn0101Depth;
-//   } else if (rand2 == 2) {
-//     adultSprite = adultLiv0101Sprite;
-//     adultDepth = adultLiv0101Depth;
-//   } else {
-//     adultSprite = adultSpa0101Sprite;
-//     adultDepth = adultSpa0101Depth;
-//   }
-//   break;
-
-// case '3':
-//   removeEgg();
-//   int rand3 = int(random(1, 3));
-//   if (rand3 == 1) {
-//     acc1Sprite = accHum0101Sprite;
-//     acc1Depth = accHum0101Depth;
-//   } else {
-//     acc1Sprite = accHum0201Sprite;
-//     acc1Depth = accHum0201Depth;
-//   }
-//   break;
-
-// case '4':
-//   removeEgg();
-//   int rand4 = int(random(1, 3));
-//   if (rand4 == 1) {
-//     acc2Sprite = accInn0601Sprite;
-//     acc2Depth = accInn0601Depth;
-//   } else {
-//     acc2Sprite = accLiv0701Sprite;
-//     acc2Depth = accLiv0701Depth;
-//   }
-//   break;
-// } // End of switch(key)
-//} // End of keyPressed()
+void keyPressed() {
+  switch(key) {
+  case '1':
+    model.render();
+    break;
+  }
+}    // End of keyPressed()

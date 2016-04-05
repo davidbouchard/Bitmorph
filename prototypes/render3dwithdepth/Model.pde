@@ -45,14 +45,14 @@ class Model {
 
   //------------------------------------------------------------
   void renderSide(PImage image, PImage depth, int side) {
-    for (int y = 0; y < image.height; y++) { // Search through all the y pixels of the image
-      for (int x = 0; x < image.width; x++) { // Search through all the x pixels of the image
-        color pixel = image.get(x, y); // Get the color of the pixel at the x, y coordinate
-        float a = alpha(pixel); // Saves the alpha (transparency)                  
-        if (a == 255) { // If the alpha is 100%
+    for (int y = 0; y < image.height; y++) {    // Search through all the y pixels of the image
+      for (int x = 0; x < image.width; x++) {    // Search through all the x pixels of the image
+        color pixel = image.get(x, y);    // Get the color of the pixel at the x, y coordinate
+        float a = alpha(pixel);    // Saves the alpha (transparency)                  
+        if (a == 255) {    // If the alpha is 100%
 
-          float xx = (x-centerX) * pSize; // Scale and center the new pixel on the x axis
-          float yy = (y-centerY) * pSize; // Scale and center the new pixel on the y axis
+          float xx = (x-centerX) * pSize;    // Scale and center the new pixel on the x axis
+          float yy = (y-centerY) * pSize;    // Scale and center the new pixel on the y axis
 
           float b = 255;
           // if there is a depth map, use it 
@@ -64,8 +64,8 @@ class Model {
           fill(pixel);                    
           box(pSize, pSize, extrude);
           popMatrix();
-        } // End of image display
-      } // End of x coordinate parsing
-    } // End of y coordinate parsing
+        }    // End of image display
+      }    // End of x coordinate parsing
+    }    // End of y coordinate parsing
   }
 }
