@@ -1,6 +1,14 @@
 // Processing sketch that uses pixel assets to scales and transform it into 3D space
 // Sam Legros
 
+import netP5.*;
+import oscP5.*;
+
+OscP5 oscNet;
+int listeningPort = 9000;
+int netTimerEnd;
+int netTimerInterval = 250;
+
 PImage egg;
 PImage eggDepth;
 
@@ -38,6 +46,9 @@ Model model;
 
 void setup() {
   size(800, 800, P3D);
+
+  oscNet = new OscP5(this, listeningPort);
+  oscNet.plug(this, "moveAlong", "/resend");
 
   egg = loadImage("testAssets/01egg.png");
   eggDepth = loadImage("testAssets/01eggdepth.png");
@@ -88,6 +99,14 @@ void draw() {
 
   model.render();    // Render model
 }    // End of draw()
+
+
+
+
+
+void oscEvent(OscMessage incoming) {
+    println(incoming);
+}    // End of oscEvent
 
 
 
