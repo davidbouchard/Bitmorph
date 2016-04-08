@@ -1,0 +1,74 @@
+Instructions for setting up camera for Raspberry Pi
+
+1. Attach the camera to the raspberry pi. Make sure you enable the camera. 
+To do this open the Terminal. Use the following command:
+	sudo raspi-config
+Enable the camera in the menu that displays
+You will have to reboot the Pi for it to start up
+
+You can test if the camera is working by using the following command
+	raspistill -o cam.jpg
+
+2. After it reboots, make sure everything is up to date by running the following comands
+	sudo apt-get update
+	sudo apt-get upgrade
+	sudo rpi-update
+
+3. Next set up to install for SimpleCV
+	sudo apt-get install ipython python-opencv python-scipy python-numpy python-setuptools python-pip 
+	sudo pip install https://github.com/sightmachine/SimpleCV/zipball/master	
+
+You can test to see if it installed properly by running the following command in python 2.7. No errors means it worked
+	import SimpleCV
+
+4. Install the UV4L driver next. In the Raspberry Pi terminal type the following
+	curl http://www.linux-projects.org/listing/uv4l_repo/lrkey.asc | sudo apt-key add -
+
+5. We have to modify the sources.list file next. The file is located in /etc/apt/sources.list
+Add the following line to the bottom of the file
+	deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ wheezy main
+
+6. Make sure we have the latest version of the driver with the following commands
+	sudo apt-get update
+	sudo apt-get install uv4l uv4l-raspicam
+
+7. To make sure the driver is loaded at boot do the following command
+	sudo apt-get install uv4l_raspicam-extras
+
+8. We need to configure the driver next.
+	pkill uv4l <---this makes sure we stop the driver before configuring
+	uv4l --driver raspicam --auto-video_nr --width 1920 --height 1080 --encoding jpeg
+
+9. Next you need to install Zbar. Back in the Raspberry Pi terminal type the following command
+	sudo apt-get install python-zbar
+ 
+you can test to see if it installed properly by running the following command in python 2.7. No errors means it worked
+	import zbar
+
+10. Now finally the python code itself. Make a new .py file with the following code.
+#############################################################################################
+	import SimpleCV
+	import zbar
+
+	from SimpleCV import Color,Camera,Display
+
+	cam = Camera()  #starts the camera
+	display = Display() 
+
+	while(display.isNotDone()):
+ 
+ 	img = cam.getImage() #gets image from the camera
+
+ 	barcode = img.findBarcode() #finds barcode data from image
+ 	if(barcode is not None): #if there is some data processed
+   		barcode = barcode[0] 
+   		result = str(barcode.data)
+   		print result #prints result of barcode in python shell
+   		barcode = [] #reset barcode data to empty set
+
+ 	img.save(display) #shows the image on the screen
+############################################################################################
+11. Execute the new file in python 2.7. The camera should now be scanning for QR Codes.
+It'll display anything it scans as text in the python execution terminal
+
+More resources in the following
