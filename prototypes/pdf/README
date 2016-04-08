@@ -1,0 +1,8 @@
+this script requires reportlab, svglib and the Python Imaging Library
+
+http://www.reportlab.com/
+
+i was able to install ReportLab using PIP on Osx 10.11.1
+
+Installing ReportLab required freetype, which can be installed using Homebrew. 
+
