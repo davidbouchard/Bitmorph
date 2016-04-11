@@ -1,0 +1,2 @@
+1. Just following the instructions here:
+https://www.raspberrypi.org/documentation/remote-access/vnc/

@@ -4,7 +4,12 @@ Before you start make sure you set up the Camera first:
 
 2. Download and extract the file pyOSC-0.3.5b-tar.gz
 
-3. Run the file setup.py in Python
+3. Open the Linux Terminal and navigate to the folder you extracted to. For raspberry pi it should be the following:
+	cd Downloads
+	cd pyOSC-0.3.5b-5294
+
+4. Now install pyOSC with the following command:
+	sudo ./setup.py install
 
 To see if it installed properly, type the following in python. No errors means it worked:
 	import OSC
