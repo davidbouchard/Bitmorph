@@ -21,6 +21,9 @@ You can test if the camera is working by using the following command
 You can test to see if it installed properly by running the following command in python 2.7. No errors means it worked
 	import SimpleCV
 
+***You might get an error saying svgwrite is missing. Type the following command in the Linux Terminal to install it
+	sudo pip install svgwrite	
+
 4. Install the UV4L driver next. In the Raspberry Pi terminal type the following
 	curl http://www.linux-projects.org/listing/uv4l_repo/lrkey.asc | sudo apt-key add -
 
@@ -29,15 +32,15 @@ Add the following line to the bottom of the file
 	deb http://www.linux-projects.org/listing/uv4l_repo/raspbian/ wheezy main
 
 6. Make sure we have the latest version of the driver with the following commands
-	sudo apt-get update
+	sudo apt-get update			<---just to make sure the dependencies we installed in step 3 aren't outdated
 	sudo apt-get install uv4l uv4l-raspicam
 
 7. To make sure the driver is loaded at boot do the following command
-	sudo apt-get install uv4l_raspicam-extras
+	sudo apt-get install uv4l-raspicam-extras
 
-8. We need to configure the driver next.
-	pkill uv4l <---this makes sure we stop the driver before configuring
-	uv4l --driver raspicam --auto-video_nr --width 1920 --height 1080 --encoding jpeg
+8. We need to configure the driver next.  *********Very important*********
+	sudo pkill uv4l <---this makes sure we stop the driver before configuring
+	uv4l --driver raspicam --auto-video_nr --width 1920 --height 1080 --encoding jpeg 
 
 9. Next you need to install Zbar. Back in the Raspberry Pi terminal type the following command
 	sudo apt-get install python-zbar
@@ -57,18 +60,25 @@ you can test to see if it installed properly by running the following command in
 
 	while(display.isNotDone()):
  
- 	img = cam.getImage() #gets image from the camera
+ 		img = cam.getImage() #gets image from the camera
 
- 	barcode = img.findBarcode() #finds barcode data from image
- 	if(barcode is not None): #if there is some data processed
-   		barcode = barcode[0] 
-   		result = str(barcode.data)
-   		print result #prints result of barcode in python shell
-   		barcode = [] #reset barcode data to empty set
+ 		barcode = img.findBarcode() #finds barcode data from image
+ 		if(barcode is not None): #if there is some data processed
+   			barcode = barcode[0] 
+   			result = str(barcode.data)
+   			print result #prints result of barcode in python shell
+   			barcode = [] #reset barcode data to empty set
 
  	img.save(display) #shows the image on the screen
 ############################################################################################
 11. Execute the new file in python 2.7. The camera should now be scanning for QR Codes.
 It'll display anything it scans as text in the python execution terminal
 
-More resources in the following
+
+More resources in the following links:
+https://technoobsite.wordpress.com/2016/02/02/raspberry-pi-barcode-scanner/ 	<---instructions for installing the camera
+http://www.linux-projects.org/modules/sections/index.php?op=viewarticle&artid=14 <---uv4l driver install instructions
+https://github.com/sightmachine/SimpleCV/blob/develop/doc/HOWTO-Install%20on%20RaspberryPi.rst <--SimpleCV instructions
+https://www.raspberrypi.org/forums/viewtopic.php?t=57788 <--Another SimpleCV install instructions
+https://github.com/sightmachine/SimpleCV/issues/564 <-- instructions if svgwrite is missing
+
