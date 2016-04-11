@@ -1,0 +1,40 @@
+Before you start make sure you set up the Camera first:
+
+1. Open your web browser and go to https://trac.v2.nl/wiki/pyOSC
+
+2. Download and extract the file pyOSC-0.3.5b-tar.gz
+
+3. Run the file setup.py in Python
+
+To see if it installed properly, type the following in python. No errors means it worked:
+	import OSC
+
+4. Now for the python code. Make a new .py file with the following code:
+
+###########################################################################
+
+#!/user/bin/python
+
+import OSC
+
+send_address = '127.0.0.1' , 9000
+
+c = OSC.OSCClient()
+c.connect(send_address)
+
+msg = OSC.OSCMessage()
+msg.setAddress("/print")
+msg.append(44)
+
+c.send(msg)
+
+################################################################################
+
+5. Execute the code in python. It will send the data 44 to the address using the /print stream address.
+
+
+
+More resources in the following links:
+https://ianshelanskey.com/2014/08/11/raspberry-pi-and-osc-part-1/ <--for installing OSC onto Raspberry Pi, The install instructions is outdated though
+https://trac.v2.nl/wiki/pyOSC <--- pyOSC webpage
+https://github.com/ptone/pyosc <--possibly the new github page for psyosc. Did not try this copy

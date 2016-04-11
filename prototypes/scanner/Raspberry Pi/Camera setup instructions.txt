@@ -12,7 +12,7 @@ You can test if the camera is working by using the following command
 2. After it reboots, make sure everything is up to date by running the following comands
 	sudo apt-get update
 	sudo apt-get upgrade
-	sudo rpi-update
+	sudo rpi-update		<---you need to reboot after this
 
 3. Next set up to install for SimpleCV
 	sudo apt-get install ipython python-opencv python-scipy python-numpy python-setuptools python-pip 
