@@ -12,7 +12,7 @@ class Model {
   PShape cache;
 
   // pixel-box size 
-  int pSize = 13; 
+  int pSize = 16; 
 
   //------------------------------------------------------------
   // Front only constructor, use the front for the back side
