@@ -4,6 +4,7 @@
 
 import netP5.*;
 import oscP5.*;
+import deadpixel.keystone.*;
 
 OscP5 oscNet;
 int listeningPort = 9000;
@@ -65,12 +66,25 @@ int acc2Picker;
 boolean  acc2RenderCheck = false;
 Model acc2;
 
+Keystone ks1;
+CornerPinSurface surface1;
+CornerPinSurface surface2;
+CornerPinSurface surface3;
+
+PImage asset;
+
+PGraphics left;
+PGraphics middle;
+PGraphics right;
+int widthLonger = 850;
+int widthShorter = 638;
+
 
 
 
 
 void setup() {
-  size(800, 800, P3D);
+  size(1366, 1100, P3D);
 
   oscNet = new OscP5(this, listeningPort);
   oscNet.plug(this, "moveAlong", "/resend");
@@ -136,7 +150,7 @@ void setup() {
     innAdult[i] = loadImage("04adult/inn_" + i + ".png");
   }
   for (int i = 1; i < sciAdult.length; i++) { 
-    sciAdult[i] = loadImage("04adult/hum_" + i + ".png");
+    sciAdult[i] = loadImage("04adult/sci_" + i + ".png");
   }
   // ADULT ==========================================================================================
 
@@ -165,6 +179,20 @@ void setup() {
   for (int i = 1; i < livAcc2.length; i++) { 
     livAcc2[i] = loadImage("06accessory2/liv_" + i + ".png");
   }
+
+  ks1 = new Keystone(this);
+  surface1 = ks1.createCornerPinSurface(widthLonger, widthShorter, 20);
+  left = createGraphics(widthLonger, widthShorter, P3D);
+
+  surface2 = ks1.createCornerPinSurface(widthShorter, widthLonger, 20);
+  middle = createGraphics(widthShorter, widthLonger, P3D);
+
+  surface3 = ks1.createCornerPinSurface(widthLonger, widthShorter, 20);
+  right = createGraphics(widthLonger, widthShorter, P3D);
+
+  //egg = new Model(innEgg[1], innEgg[2]);
+  adult = new Model(innAdult[5], innAdult[6], innAdult[7], innAdult[8]);
+
   // ACC2 ==========================================================================================
 }    // End of setup()
 
@@ -173,10 +201,6 @@ void setup() {
 
 
 void draw() {
-  background(128);    // Set background
-  lights();    // Lights creates shadowing effect
-  translate(width/2, height/2);    // translate (0, 0) to center of window
-  rotateY(frameCount/100.0);    // rotate object on Y axis
 
   if (scanTrigger == true) {
     scanCounter++;    // Increase scanCounter by 1
@@ -215,7 +239,7 @@ void draw() {
       }
       // EGG ==========================================================================================
 
-      delay(1500);
+      //      delay(1500);
 
       // BABY ==========================================================================================
       stationPicker = int(random(1, 6));
@@ -293,7 +317,8 @@ void draw() {
 
       // ADULT ==========================================================================================
     } else if (scanCounter == 3) {    // If scanCounter is 3
-      stationPicker = int(random(1, 4));
+      stationPicker = 3;
+      //stationPicker = int(random(1, 4));
       if (stationPicker == 1) {
         adultPicker = int(random(1, 6));
         if (adultPicker == 1) {
@@ -389,45 +414,88 @@ void draw() {
     scanTrigger = false;
   }    // End of if statement
 
+  // Left
+  left.beginDraw();  
+  //left.translate(width/2, height/2);    // translate (0, 0) to center of window
+  //left.rotateY(frameCount/100.0);    // rotate object on Y axis
+  left.translate(left.width/2, left.height/2);
+  left.rotateZ(radians(270));
+  left.rotateY(frameCount/100.0);
+  renderScene(left);
+  left.endDraw();
+
+  // right
+  right.beginDraw();  
+  right.translate(right.width/2, right.height/2);
+  right.rotateZ(radians(90));
+  right.rotateY(frameCount/100.0);
+  renderScene(right);
+  right.endDraw();
+
+  // middle 
+  middle.beginDraw();  
+  middle.translate(middle.width/2, middle.height/2);
+  middle.rotateY(radians(90));
+  middle.rotateY(frameCount/100.0);
+  renderScene(middle);
+  middle.endDraw();
+
+  // draw using the surface objects
+
+  background(0);
+  surface1.render(left);
+  surface2.render(middle);
+  surface3.render(right);
+}    // End of draw()
+
+
+
+
+
+void renderScene(PGraphics g) { 
+  background(128);    // Set background of each window
+  lights();    // Lights creates shadowing effect
+  //egg.render(g);
+  adult.render(g);
   if (eggRenderCheck == true) {
-    egg.render();
+    egg.render(g);
   }
 
   if (babyRenderCheck == true) {
     hatch.start();
     if (hatch.isFinished() == true) {
       eggRenderCheck = false;
-      baby.render();
+      baby.render(g);
     }
   }
 
   if (wormRenderCheck == true) {
     eggRenderCheck = false;
     babyRenderCheck = false;
-    worm.render();
+    worm.render(g);
   }
 
   if (adultRenderCheck == true) {
     eggRenderCheck = false;
     babyRenderCheck = false;
     wormRenderCheck = false;
-    adult.render();
+    adult.render(g);
   }
 
   if (acc1RenderCheck == true) {
     eggRenderCheck = false;
     babyRenderCheck = false;
     wormRenderCheck = false;
-    acc1.render();
+    acc1.render(g);
   }
 
   if (acc2RenderCheck == true) {
     eggRenderCheck = false;
     babyRenderCheck = false;
     wormRenderCheck = false;
-    acc2.render();
+    acc2.render(g);
   }
-}    // End of draw()
+}
 
 
 
@@ -454,6 +522,18 @@ void keyPressed() {
     adultRenderCheck = false;
     acc1RenderCheck = false;
     acc2RenderCheck = false;
+    break;
+
+  case 'c':    // Enter/leave calibration mode, where surfaces can be warped and moved
+    ks1.toggleCalibration();
+    break;
+
+  case 'l':    // Loads the saved layout
+    ks1.load();
+    break;
+
+  case 's':    // Saves the layout
+    ks1.save();
     break;
   }    // End of switch
 }    // End of keyPressed()

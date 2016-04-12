@@ -36,15 +36,15 @@ class Model {
   }
 
   //------------------------------------------------------------
-  void render() {
+  void render(PGraphics g) {
     // First draw the front
-    noStroke();
-    renderSide(front, frontDepth, 1); 
-    renderSide(back, backDepth, -1);
+    g.noStroke();
+    renderSide(g, front, frontDepth, 1); 
+    renderSide(g, back, backDepth, -1);
   }
 
   //------------------------------------------------------------
-  void renderSide(PImage image, PImage depth, int side) {
+  void renderSide(PGraphics g, PImage image, PImage depth, int side) {
     for (int y = 0; y < image.height; y++) {    // Search through all the y pixels of the image
       for (int x = 0; x < image.width; x++) {    // Search through all the x pixels of the image
         color pixel = image.get(x, y);    // Get the color of the pixel at the x, y coordinate
@@ -59,11 +59,11 @@ class Model {
           if (depth != null) b = brightness(depth.get(x, y));
           float extrude = map(b, 0, 255, pSize*2, pSize);
 
-          pushMatrix();
-          translate(xx, yy, side * extrude/2);
-          fill(pixel);                    
-          box(pSize, pSize, extrude);
-          popMatrix();
+          g.pushMatrix();
+          g.translate(xx, yy, side * extrude/2);
+          g.fill(pixel);                    
+          g.box(pSize, pSize, extrude);
+          g.popMatrix();
         }    // End of image display
       }    // End of x coordinate parsing
     }    // End of y coordinate parsing
