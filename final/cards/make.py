@@ -33,7 +33,7 @@ usedCodes = pickle.load(open("used-codes.pickle"))
 # -- returns: a QR code Image object 
 def getQRUrl(userCode):        
     query = "https://chart.googleapis.com/chart?" 
-    query = query + "chs=300x300"                 
+    query = query + "chs=450x450"                 
     query = query + "&cht=qr"                                  
     query = query + "&chl="                                  
     url = webUrl + userCode
@@ -80,8 +80,8 @@ def generatePage(pdf, front, back):
     w = 4.0*inch
     h = 2.5*inch
     
-    border = 0.25 * inch;
-    spacing = 1;
+    border = (0.125 + 0.125/2) * inch;
+    spacing = 0.125 * inch;
     
     # first generate four random codes
     codes = {}
@@ -93,8 +93,8 @@ def generatePage(pdf, front, back):
     pdf.setFont("Helvetica", 7.90)
     for i in range(0, 2):
         for j in range(0, 2):
-            x = w*i*spacing + border
-            y = h*j*spacing + border
+            x = w*i + i*spacing + border
+            y = h*j + j*spacing + border
             code = codes[(i, j)]
             pdf.drawInlineImage(front, x, y, w, h)
             pdf.drawString(x + 1.055*inch, y+1.18*inch, webUrl + code)
@@ -103,8 +103,8 @@ def generatePage(pdf, front, back):
     
     for i in range(0, 2):
         for j in range(0, 2):
-            x = w*i*spacing + border
-            y = h*j*spacing + border
+            x = w*i + i*spacing + border
+            y = h*j + j*spacing + border
             
             # need to mirror codes horizontally 
             ii = 0;
