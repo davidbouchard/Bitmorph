@@ -1,11 +1,15 @@
 // Testing drawing a box with a PShape instead of box()
 
 PShape s;
+PShader fader;
+
 
 PGraphics off;
 
 void setup() {
   size(1248, 1024, P3D);
+
+  fader = loadShader("frag.glsl");
 
   off = createGraphics(width, height, P3D);
 
@@ -35,6 +39,7 @@ void setup() {
 }
 
 void draw() {
+  /*
   background(0);
   off.beginDraw();
   off.background(0);
@@ -44,15 +49,27 @@ void draw() {
   off.translate(mouseX, mouseY);
   off.rotateY(frameCount/100.0);
   off.shape(s, 0, 0);
-  off.rotateX(frameCount/50.0);
-  off.shape(s, 0, 0);
-  off.rotateZ(frameCount/50.0);
-  off.shape(s, 0, 0);
+  //off.rotateX(frameCount/50.0);
+  //off.shape(s, 0, 0);
+  //off.rotateZ(frameCount/50.0);
+  //off.shape(s, 0, 0);
   off.popMatrix();
   off.endDraw();
+  */
+  //image(off, 0, 0);
+  background(0);
+  translate(width/2, height/2);  
+  rotateY(frameCount/100.0);
+  fader.set("fade", map(mouseX, 0, width, 0, 1));
+  shader(fader);
   
-  image(off, 0, 0);
+  shape(s, 0, 0);
+  rotateY(frameCount/50.0);
   
+  fader.set("fade", map(mouseX, 0, width, 1, 0));
+  
+  shape(s, 0, 0);
+   
   fill(255);
   text("FPS: " + round(frameRate), 20, 20);
 
