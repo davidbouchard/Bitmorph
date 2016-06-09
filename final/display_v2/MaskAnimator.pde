@@ -1,12 +1,17 @@
 
+// This class animates the pixelation masks used by the Model objects
 class MaskAnimator {
 
   int row = 49;
   int span = 4;
   boolean done = false;
 
-  int fillRate = 5;
-  int rowChangeAmount = 15;
+  //int fillRate = 5;
+  //int rowChangeAmount = 15;
+
+  int fillRate = 15;
+  int rowChangeAmount = 5;
+
 
   void reset() {
     row = 49;
@@ -19,8 +24,7 @@ class MaskAnimator {
       for (int i=0; i < 50; i++) {      
         if (mask[j][i] == 0) blackOnes.add(new PVector(j, i));
       }
-    } 
-    println(blackOnes.size() + " " + row);
+    }  
     if (blackOnes.size() < rowChangeAmount && row-span > 0) {
       // fill the bottom row 
       for (int i=0; i < 50; i++) {

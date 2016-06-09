@@ -12,7 +12,8 @@ class Model {
 
   float [][] mask = new float[50][50];
 
-  PShape cache;
+  PShape frontCache;
+  PShape backCache;
 
   // pixel-box size 
   int pSize = 16; 
@@ -52,14 +53,63 @@ class Model {
         else mask[y][x] = -1;
       }
     }
+    
+    frontCache = createShape();
+    buildCache(frontCache, front, frontDepth, 1);
+    
+    backCache = createShape();
+    buildCache(backCache, back, backDepth, -1);
+    
+    
   }
-  
+
+  //------------------------------------------------------------
+  void buildCache(PShape cache, PImage image, PImage depth, int side) {
+    // Build the cached version for spinning 
+    cache.beginShape(TRIANGLES); 
+    cache.noStroke();
+    
+    int[] mask = {0, 0, 0, 0, 0, 0}; // not used yet 
+    for (int y = 0; y < image.height; y++) { 
+      for (int x = 0; x < image.width; x++) {
+
+        color pixel = image.get(x, y);  
+        float a = alpha(pixel);  // Saves the alpha (transparency)                  
+        if (a == 255) { // If the alpha is 100%
+
+          float xx = (x-centerX) * pSize;  // Scale and center the new pixel on the x axis
+          float yy = (y-centerY) * pSize;  // Scale and center the new pixel on the y axis
+
+          float b = 255;
+          // if there is a depth map, use it! 
+          if (depth != null) b = brightness(depth.get(x, y));
+          float extrude = map(b, 0, 255, pSize*2, pSize);
+
+          // convert black pixels on the edge into another color 
+          if (brightness(pixel) < 40) { 
+            if (hasBlankNeighbour(image, x, y)) pixel = color(33);
+          }
+ 
+          cache.fill(pixel);
+          box_tri(cache, xx, yy, side * extrude/2, pSize, extrude, mask);
+        }
+      }
+    }
+    cache.endShape();
+  }
+
   //------------------------------------------------------------
   void render(PGraphics g) {
     if (!loaded) return;
     g.noStroke();
     renderSide(g, front, frontDepth, 1); 
     renderSide(g, back, backDepth, -1);
+  }
+  
+  void renderFast(PGraphics g) {
+    if (!loaded) return;
+    g.shape(frontCache);
+    g.shape(backCache);
   }
 
   //------------------------------------------------------------
@@ -86,7 +136,7 @@ class Model {
 
           // convert black pixels on the edge into another color 
           if (brightness(pixel) < 40) { 
-            if (hasBlankNeighbour(image, x, y)) pixel = color(33);  
+            if (hasBlankNeighbour(image, x, y)) pixel = color(33);
           }
 
           g.pushMatrix();
@@ -98,8 +148,8 @@ class Model {
       }    // End of x coordinate parsing
     }    // End of y coordinate parsing
   }
-  
-  
+
+
   //------------------------------------------------------------
   // Check to see if a pixel has any blank neighbour pixels 
   boolean hasBlankNeighbour(PImage img, float x, float y) {
@@ -108,7 +158,7 @@ class Model {
     int sY = (int)max(0, y-1);
     int eX = (int)min(49, x+1);
     int eY = (int)min(49, y+1);
-    
+
     for (int xx = sX; xx <= eX; xx++) {
       for (int yy = sY; yy <= eY; yy++) { 
         color p = img.get(xx, yy); 
@@ -118,7 +168,89 @@ class Model {
         }
       }
     }
-    
+
     return itDoes;
+  }
+}
+
+
+
+///////////////////////////////////////////////////////////////////////
+// Utility function 
+void box_tri(PShape s, float x, float y, float z, float d, float zd, int[] mask) {
+  PVector v0 = new PVector(x+d/2, y-d/2, z+zd/2);
+  PVector v1 = new PVector(x-d/2, y-d/2, z+zd/2);
+  PVector v2 = new PVector(x-d/2, y+d/2, z+zd/2);
+  PVector v3 = new PVector(x+d/2, y+d/2, z+zd/2);
+
+  PVector v4 = new PVector(x+d/2, y+d/2, z-zd/2);
+  PVector v5 = new PVector(x+d/2, y-d/2, z-zd/2);
+  PVector v6 = new PVector(x-d/2, y-d/2, z-zd/2);
+  PVector v7 = new PVector(x-d/2, y+d/2, z-zd/2);
+
+  // front   
+  if (mask[0] == 0) {
+    s.vertex(v1.x, v1.y, v1.z);
+    s.vertex(v0.x, v0.y, v0.z);
+    s.vertex(v3.x, v3.y, v3.z);
+
+    s.vertex(v3.x, v3.y, v3.z);
+    s.vertex(v1.x, v1.y, v1.z);
+    s.vertex(v2.x, v2.y, v2.z);
+  }
+
+  // top
+  if (mask[1] == 0) {
+    s.vertex(v6.x, v6.y, v6.z);
+    s.vertex(v5.x, v5.y, v5.z);
+    s.vertex(v0.x, v0.y, v0.z);
+
+    s.vertex(v6.x, v6.y, v6.z);
+    s.vertex(v0.x, v0.y, v0.z);
+    s.vertex(v1.x, v1.y, v1.z);
+  }
+
+  // back
+  if (mask[2] == 0) {
+    s.vertex(v5.x, v5.y, v5.z);
+    s.vertex(v6.x, v6.y, v6.z);
+    s.vertex(v7.x, v7.y, v7.z);
+
+    s.vertex(v7.x, v7.y, v7.z);
+    s.vertex(v5.x, v5.y, v5.z);
+    s.vertex(v4.x, v4.y, v4.z);
+  }
+
+  // bottom
+  if (mask[3] == 0) {
+    s.vertex(v7.x, v7.y, v7.z);
+    s.vertex(v4.x, v4.y, v4.z);
+    s.vertex(v3.x, v3.y, v3.z);
+
+    s.vertex(v3.x, v3.y, v3.z);
+    s.vertex(v7.x, v7.y, v7.z);
+    s.vertex(v2.x, v2.y, v2.z);
+  }
+
+  // left
+  if (mask[4] == 0) {
+    s.vertex(v6.x, v6.y, v6.z);
+    s.vertex(v1.x, v1.y, v1.z);
+    s.vertex(v2.x, v2.y, v2.z);
+
+    s.vertex(v2.x, v2.y, v2.z);
+    s.vertex(v6.x, v6.y, v6.z);
+    s.vertex(v7.x, v7.y, v7.z);
+  }
+
+  // right
+  if (mask[5] == 0) {
+    s.vertex(v0.x, v0.y, v0.z);
+    s.vertex(v5.x, v5.y, v5.z);
+    s.vertex(v4.x, v4.y, v4.z);
+
+    s.vertex(v4.x, v4.y, v4.z);
+    s.vertex(v0.x, v0.y, v0.z);
+    s.vertex(v3.x, v3.y, v3.z);
   }
 }
