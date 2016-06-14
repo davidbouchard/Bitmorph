@@ -10,6 +10,8 @@ import netP5.*;
 import oscP5.*;
 import deadpixel.keystone.*;
 
+import com.jogamp.opengl.*;
+
 // GLOBAL PARAMETERS
 
 int TIMEOUT = 5;  // in seconds, this controls the amount of time the creature will stay on the screen 
@@ -59,6 +61,9 @@ CornerPinSurface surface3;
 Sounds sounds;
 PFont bitFont; 
 
+PJOGL pgl;
+GL2ES2 gl;
+
 //===================================================
 void settings() {
   // Load properties 
@@ -79,7 +84,7 @@ void settings() {
     }
   }
   catch(Exception e) {
-    println(e.getStackTrace());
+    e.printStackTrace();
   }
 }
 
@@ -87,9 +92,15 @@ void settings() {
 void setup() {  
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
+  noCursor();
+  
+  pgl = (PJOGL)beginPGL();
+  gl = pgl.gl.getGL2ES2();
+  gl.glEnable(gl.GL_CULL_FACE);
+  endPGL();
 
   // PI simulator
-  frameRate(10);
+  //frameRate(10);
 
   osc = new OscP5(this, listeningPort);
   osc.plug(this, "scan", "/scan"); 
@@ -110,6 +121,8 @@ void setup() {
   middle = createGraphics(widthShorter, widthLonger, P3D);
   surface3 = ks1.createCornerPinSurface(widthLonger, widthShorter, 20);
   right = createGraphics(widthLonger, widthShorter, P3D);
+
+  ks1.load();
 
   bitFont = createFont("PressStart2P.ttf", 24);
   textFont(bitFont);
@@ -153,14 +166,14 @@ void draw() {
   middle.rotateY(spinAngle);
   renderScene(middle);
   middle.popMatrix();
-  //renderOverlay(middle);
+  renderOverlay(middle);
   middle.endDraw();
 
   // draw using the surface objects
   background(0);
-  //surface1.render(left);
-  //surface2.render(middle);
-  //surface3.render(right);
+  surface1.render(left);
+  surface2.render(middle);
+  surface3.render(right);
 
   image(middle, 0, 0);
 }
@@ -168,6 +181,7 @@ void draw() {
 //===================================================
 // Use for text / this will not rotate and only appear in the middle panel 
 void renderOverlay(PGraphics g) {  
+  g.noLights();
   g.textFont(bitFont);
   g.textAlign(CENTER);
   g.fill(255); 
@@ -178,7 +192,7 @@ void renderOverlay(PGraphics g) {
 void renderScene(PGraphics g) {
   // or is it without the g.? 
   g.lights();
-
+    
   switch(state) {
     //---------------------------------------------
   case FADE_IN_PREVIOUS:
@@ -255,9 +269,9 @@ void drawMask(float[][] mask, float xx, float yy) {
 //===================================================
 // Called when a scan event is received over OSC
 void scan(String code) {       
+  println("Received code: " + code);
   code = code.substring(0, 4); // temporary fix -> trim to 4 characters
-  sounds.playSong(int(random(5)));   
-
+  
   String area = areaNames[int(random(0, 4))];
   String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + area;  
 
@@ -265,6 +279,9 @@ void scan(String code) {
   // TESTING WITH AN OFFLINE SPRITESHEET 
   PImage img = loadImage("test.png");
   SpriteSheet s = new SpriteSheet(img);
+
+  int stage = 0; // TODO: get from Sprite sheet
+  sounds.playSong(stage);   
 
   // Update the model objects
   prevModel.setImage(s.pFront, s.pFront_d, s.pBack, s.pBack_d);  
@@ -282,7 +299,18 @@ void scan(String code) {
 
 //===================================================
 void keyPressed() {
-  if (key == 's') {
-    scan("abcd");
+  switch(key) {
+    case ' ':
+      scan("abcd");
+      break;
+    case 'c':
+      ks1.toggleCalibration();
+      break;
+    case 's':
+      ks1.save();
+      break;
+    case 'l':
+      ks1.load();
+      break;
   }
 }

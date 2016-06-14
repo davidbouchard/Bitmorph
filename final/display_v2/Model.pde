@@ -105,6 +105,14 @@ class Model {
     renderSide(g, front, frontDepth, 1); 
     renderSide(g, back, backDepth, -1);
   }
+
+  //------------------------------------------------------------
+  void renderFrontOnly(PGraphics g) {
+    if (!loaded) return;
+    g.noStroke();
+    renderSide(g, front, frontDepth, 1); 
+  }
+ 
   
   void renderFast(PGraphics g) {
     if (!loaded) return;
