@@ -1,6 +1,12 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+import ddf.minim.effects.*;
+import ddf.minim.signals.*;
+import ddf.minim.spi.*;
+import ddf.minim.ugens.*;
+
 import netP5.*;
 import oscP5.*;
-import processing.sound.*;
 import deadpixel.keystone.*;
 
 OscP5 osc;
@@ -18,14 +24,18 @@ String lastCode = "";
 String[] areaNames = {"liv", "inn", "hum", "sci", "spa"};
 
 enum State {
-  FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, 
+  FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT,
     SPIN, IDLE
 } 
 
 State state = State.IDLE;
 
+int TIMEOUT = 5;  // 5 seconds
+
+float SPIN_SPEED_MAX = 0.005;
+
 float spinAngle = 0;
-float spinSpeed = 0;
+float spinSpeed = SPIN_SPEED_MAX;
 
 float fadeOut;
 
@@ -45,16 +55,13 @@ int widthShorter = 638;
 Sounds sounds;
 
 PFont bitFont; 
-
-PShader fader;
+ 
 
 //===================================================
 void setup() {  
   size(1248, 1024, P3D);
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
-
-  fader = loadShader("frag.glsl");
 
   // PI simulator
   frameRate(10);
@@ -150,7 +157,7 @@ void renderScene(PGraphics g) {
   switch(state) {
     //---------------------------------------------
   case FADE_IN_PREVIOUS:
-    mAnim.animate(prevModel.mask);
+    mAnim.pixelateIn(prevModel.mask);
     prevModel.render(g); 
     if (mAnim.done) {
       mAnim.reset();
@@ -165,36 +172,35 @@ void renderScene(PGraphics g) {
     if (timer.isFinished()) state = State.FADE_IN_CURRENT;
     break;
 
-    //---------------------------------------------
+  //---------------------------------------------
   case FADE_IN_CURRENT:
-    mAnim.animate(model.mask);
+    mAnim.pixelateIn(model.mask);
     mAnim.reverse(prevModel.mask, model.mask);
     prevModel.render(g);
     model.render(g); 
     if (mAnim.done) {
       state = State.SPIN;
-      timer = new Timer(1000 * 5); // one minute before timeout 
+      timer = new Timer(1000 * TIMEOUT); // one minute before timeout 
       spinSpeed = 0;
       fadeOut = 1; 
     }
     break;
 
-    //---------------------------------------------
+  //---------------------------------------------
   case SPIN:
     spinAngle += spinSpeed;
     if (spinSpeed < 0.005) spinSpeed += 0.0001; 
     if (timer.isFinished()) {
-      fader.set("fade", fadeOut);
       if (fadeOut > 0) fadeOut -= 0.01;
       else {
         state = State.IDLE;        
       }
-      //g.shader(fader); 
-      // fade out and go to IDLE state   
     }
+    
     model.renderFast(g); // use the cache
     break;
-
+  
+  //---------------------------------------------
   case IDLE:
     spinAngle += spinSpeed;
     arrow.renderFast(g);

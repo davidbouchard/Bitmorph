@@ -18,7 +18,7 @@ class MaskAnimator {
     done = false;
   }
 
-  void animate(float[][] mask) {  
+  void pixelateIn(float[][] mask) {  
     ArrayList<PVector> blackOnes = new ArrayList(); 
     for (int j=row-span; j <= row; j++) { 
       for (int i=0; i < 50; i++) {      
