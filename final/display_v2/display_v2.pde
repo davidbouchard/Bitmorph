@@ -4,10 +4,16 @@ import ddf.minim.effects.*;
 import ddf.minim.signals.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
-
+import java.util.*;
+import java.io.*;
 import netP5.*;
 import oscP5.*;
 import deadpixel.keystone.*;
+
+// GLOBAL PARAMETERS
+
+int TIMEOUT = 5;  // in seconds, this controls the amount of time the creature will stay on the screen 
+float SPIN_SPEED_MAX = 0.005;
 
 OscP5 osc;
 int listeningPort = 9000;
@@ -24,15 +30,13 @@ String lastCode = "";
 String[] areaNames = {"liv", "inn", "hum", "sci", "spa"};
 
 enum State {
-  FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT,
+  FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT, 
     SPIN, IDLE
 } 
 
+String area;
+
 State state = State.IDLE;
-
-int TIMEOUT = 5;  // 5 seconds
-
-float SPIN_SPEED_MAX = 0.005;
 
 float spinAngle = 0;
 float spinSpeed = SPIN_SPEED_MAX;
@@ -40,6 +44,9 @@ float spinSpeed = SPIN_SPEED_MAX;
 float fadeOut;
 
 // Keystone
+int widthLonger = 850;
+int widthShorter = 638;
+
 PGraphics left;
 PGraphics middle;
 PGraphics right;
@@ -49,17 +56,35 @@ CornerPinSurface surface1;
 CornerPinSurface surface2;
 CornerPinSurface surface3;
 
-int widthLonger = 850;
-int widthShorter = 638;
-
 Sounds sounds;
-
 PFont bitFont; 
- 
 
 //===================================================
+void settings() {
+  // Load properties 
+  try {
+    Properties configFile = new Properties();
+    String dp = dataPath("config.properties");
+    FileInputStream f = new FileInputStream(dp);
+    configFile.load(f);
+    println(configFile);
+    area = configFile.getProperty("AREA");
+    int fs = Integer.parseInt(configFile.getProperty("FULLSCREEN"));
+    if (fs == 1) {
+      fullScreen(P3D);
+    } else {
+      int w =  Integer.parseInt(configFile.getProperty("WIN_W"));
+      int h =  Integer.parseInt(configFile.getProperty("WIN_H"));      
+      size(w, h, P3D);
+    }
+  }
+  catch(Exception e) {
+    println(e.getStackTrace());
+  }
+}
+
+
 void setup() {  
-  size(1248, 1024, P3D);
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
 
@@ -73,7 +98,7 @@ void setup() {
 
   prevModel = new Model();
   model = new Model();
-  
+
   arrow = new Model();
   PImage arrowImage = loadImage("arrow.png");
   arrow.setImage(arrowImage, null, arrowImage, null); 
@@ -94,7 +119,7 @@ void setup() {
 
   state = State.IDLE;
 
-  sounds = new Sounds(this, "liv");
+  sounds = new Sounds(this, area);
 }
 
 //===================================================
@@ -172,7 +197,7 @@ void renderScene(PGraphics g) {
     if (timer.isFinished()) state = State.FADE_IN_CURRENT;
     break;
 
-  //---------------------------------------------
+    //---------------------------------------------
   case FADE_IN_CURRENT:
     mAnim.pixelateIn(model.mask);
     mAnim.reverse(prevModel.mask, model.mask);
@@ -182,31 +207,30 @@ void renderScene(PGraphics g) {
       state = State.SPIN;
       timer = new Timer(1000 * TIMEOUT); // one minute before timeout 
       spinSpeed = 0;
-      fadeOut = 1; 
+      fadeOut = 1;
     }
     break;
 
-  //---------------------------------------------
+    //---------------------------------------------
   case SPIN:
     spinAngle += spinSpeed;
     if (spinSpeed < 0.005) spinSpeed += 0.0001; 
     if (timer.isFinished()) {
       if (fadeOut > 0) fadeOut -= 0.01;
       else {
-        state = State.IDLE;        
+        state = State.IDLE;
       }
     }
-    
+
     model.renderFast(g); // use the cache
     break;
-  
-  //---------------------------------------------
+
+    //---------------------------------------------
   case IDLE:
     spinAngle += spinSpeed;
     arrow.renderFast(g);
     break;
   }
-
 }
 
 //===================================================
