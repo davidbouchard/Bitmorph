@@ -137,8 +137,6 @@ void setup() {
 
 //===================================================
 void draw() {
-  background(0);
-
   // Left
   left.beginDraw();  
   left.background(0, 0);
@@ -242,7 +240,7 @@ void renderScene(PGraphics g) {
     //---------------------------------------------
   case IDLE:
     spinAngle += spinSpeed;
-    arrow.renderFast(g);
+    arrow.render(g);
     break;
   }
 }
