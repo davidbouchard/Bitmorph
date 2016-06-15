@@ -6,6 +6,7 @@ import datetime
 from SimpleCV import Color,Camera,Display
 import argparse
 import RPi.GPIO as GPIO
+import os
 
 # connected as a sink, so High -> OFF
 ledPin = 7
@@ -47,7 +48,12 @@ if __name__ == "__main__":
         if barcode:
             barcode = barcode[0] 
             result = str(barcode.data)
-            accountID = result[-6:]
+            accountID = result[-4:]
+            
+            # special command to shutdown the pi 
+            if accountID == "####":
+            	os.system("sudo shutdown now -h")
+            
             if prevScan != accountID:
                prevScan = accountID
                print datetime.datetime.now(), "scanned:", accountID
