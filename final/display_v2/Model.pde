@@ -16,7 +16,7 @@ class Model {
   PShape backCache;
 
   // pixel-box size 
-  int pSize = 16; 
+  int pSize = 12; 
 
   boolean loaded = false;
 

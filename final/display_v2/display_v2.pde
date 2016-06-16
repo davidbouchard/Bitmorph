@@ -29,13 +29,14 @@ Timer timer = new Timer(1000);
 Model arrow;
 
 String lastCode = "";
-String[] areaNames = {"liv", "inn", "hum", "sci", "spa"};
+String[] areaNames = {"sci", "hum", "liv", "inn", "spa"};
 
 enum State {
   FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT, 
     SPIN, IDLE
 } 
 
+// The current area
 String area;
 
 State state = State.IDLE;
@@ -46,8 +47,8 @@ float spinSpeed = SPIN_SPEED_MAX;
 float fadeOut;
 
 // Keystone
-int widthLonger = 850;
-int widthShorter = 638;
+int widthLonger = 800;
+int widthShorter = 800;
 
 PGraphics left;
 PGraphics middle;
@@ -63,6 +64,9 @@ PFont bitFont;
 
 PJOGL pgl;
 GL2ES2 gl;
+
+boolean showAlreadyVisited = false;
+boolean showFoundEverything = false;
 
 //===================================================
 void settings() {
@@ -93,7 +97,7 @@ void setup() {
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
   noCursor();
-  
+
   pgl = (PJOGL)beginPGL();
   gl = pgl.gl.getGL2ES2();
   gl.glEnable(gl.GL_CULL_FACE);
@@ -172,8 +176,6 @@ void draw() {
   surface1.render(left);
   surface2.render(middle);
   surface3.render(right);
-
-  image(middle, 0, 0);
 }
 
 //===================================================
@@ -183,14 +185,22 @@ void renderOverlay(PGraphics g) {
   g.textFont(bitFont);
   g.textAlign(CENTER);
   g.fill(255); 
-  g.text("Already visited!\nTry looking for\nanother terminal!", g.width/2, mouseY);
+
+  if (showAlreadyVisited) {
+    g.text("Already visited!\nTry looking for\nanother terminal!", g.width/2, 50);
+  }
+  
+  if (showFoundEverything) {
+    g.text("You found the\nlast terminal! Great job!", g.width/2, 50);
+      
+  }
 }
 
 //===================================================
 void renderScene(PGraphics g) {
   // or is it without the g.? 
   g.lights();
-    
+
   switch(state) {
     //---------------------------------------------
   case FADE_IN_PREVIOUS:
@@ -239,8 +249,10 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case IDLE:
+    showAlreadyVisited = false;
+    spinSpeed = 0.005;
     spinAngle += spinSpeed;
-    arrow.render(g);
+    arrow.renderFast(g);
     break;
   }
 }
@@ -269,14 +281,24 @@ void drawMask(float[][] mask, float xx, float yy) {
 void scan(String code) {       
   println("Received code: " + code);
   code = code.substring(0, 4); // temporary fix -> trim to 4 characters
-  
+
   String area = areaNames[int(random(0, 4))];
   String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + area;  
-
-  //PImage img = loadImage(url, "png");  
-  // TESTING WITH AN OFFLINE SPRITESHEET 
-  PImage img = loadImage("test.png");
+  println("using random area:" + area);
+  
+  PImage img = null;
+  if (code.equals("abcd")) img = loadImage("test.png");
+  else {
+    img = loadImage(url, "png");
+  }
+  
   SpriteSheet s = new SpriteSheet(img);
+
+  if (s.hasVisited(area)) {
+    println("Already visited");  
+    showAlreadyVisited = true;
+  }
+
 
   int stage = 0; // TODO: get from Sprite sheet
   sounds.playSong(stage);   
@@ -298,17 +320,18 @@ void scan(String code) {
 //===================================================
 void keyPressed() {
   switch(key) {
-    case ' ':
-      scan("abcd");
-      break;
-    case 'c':
-      ks1.toggleCalibration();
-      break;
-    case 's':
-      ks1.save();
-      break;
-    case 'l':
-      ks1.load();
-      break;
+  case ' ':
+    scan("abcd");
+    break;
+  case 'c':
+    cursor();
+    ks1.toggleCalibration();
+    break;
+  case 's':
+    ks1.save();
+    break;
+  case 'l':
+    ks1.load();
+    break;
   }
 }

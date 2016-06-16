@@ -9,7 +9,7 @@ class MaskAnimator {
   //int fillRate = 5;
   //int rowChangeAmount = 15;
 
-  int fillRate = 15;
+  int fillRate = 25;
   int rowChangeAmount = 5;
 
 
