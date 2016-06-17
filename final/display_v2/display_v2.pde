@@ -127,6 +127,7 @@ void setup() {
   right = createGraphics(widthLonger, widthShorter, P3D);
 
   ks1.load();
+  ap = surface2; // for calibration 
 
   bitFont = createFont("PressStart2P.ttf", 24);
   textFont(bitFont);
@@ -176,23 +177,31 @@ void draw() {
   surface1.render(left);
   surface2.render(middle);
   surface3.render(right);
+
+  if (ks1.isCalibrating()) {
+    textSize(12);
+    text("Lock sides: " + lockSides, 30, 30);
+    text("Move by: " + moveBy, 30, 60);
+  }
 }
 
 //===================================================
 // Use for text / this will not rotate and only appear in the middle panel 
+
+float textY = 50;
+
 void renderOverlay(PGraphics g) {  
   g.noLights();
   g.textFont(bitFont);
   g.textAlign(CENTER);
   g.fill(255); 
-
+  g.textSize(24);
   if (showAlreadyVisited) {
-    g.text("Already visited!\nTry looking for\nanother terminal!", g.width/2, 50);
+    g.text("Already visited!\nTry looking for\nanother terminal!", g.width/2, textY);
   }
-  
+
   if (showFoundEverything) {
-    g.text("You found the\nlast terminal! Great job!", g.width/2, 50);
-      
+    g.text("You found the last terminal!\nGreat job!", g.width/2, textY);
   }
 }
 
@@ -250,6 +259,7 @@ void renderScene(PGraphics g) {
     //---------------------------------------------
   case IDLE:
     showAlreadyVisited = false;
+    showFoundEverything = false;
     spinSpeed = 0.005;
     spinAngle += spinSpeed;
     arrow.renderFast(g);
@@ -285,19 +295,23 @@ void scan(String code) {
   String area = areaNames[int(random(0, 4))];
   String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + area;  
   println("using random area:" + area);
-  
+
   PImage img = null;
   if (code.equals("abcd")) img = loadImage("test.png");
   else {
     img = loadImage(url, "png");
   }
-  
+
   SpriteSheet s = new SpriteSheet(img);
 
-  if (s.hasVisited(area)) {
+  if (s.hasVisitedAll()) {
+    showFoundEverything = true;
+  } else if (s.hasVisited(area)) {
     println("Already visited");  
-    showAlreadyVisited = true;
+    showAlreadyVisited= true;
   }
+
+
 
 
   int stage = 0; // TODO: get from Sprite sheet
@@ -318,6 +332,12 @@ void scan(String code) {
 
 
 //===================================================
+CornerPinSurface ap;
+color ac = color(0, 255, 0);
+color dc = color(255);
+boolean lockSides = false;
+float moveBy = 10;
+
 void keyPressed() {
   switch(key) {
   case ' ':
@@ -333,5 +353,90 @@ void keyPressed() {
   case 'l':
     ks1.load();
     break;
+
+  case 'v':
+    showAlreadyVisited = !showAlreadyVisited;
+    break;
+
+  case 'w':
+    showFoundEverything = !showFoundEverything;    
+    break;
+
+  case '1':   
+    ap.setGridColor(dc);
+    ap = surface1;
+    ap.setGridColor(ac);
+    break;
+
+
+  case '2':   
+    ap.setGridColor(dc);
+    ap = surface2;
+    ap.setGridColor(ac);
+    break;
+
+  case '3':   
+    ap.setGridColor(dc);
+    ap = surface3;
+    ap.setGridColor(ac);
+    break;
+
+  case 'z':
+    lockSides = false;
+    break;
+  case 'Z':
+    lockSides = true;
+    break;
+
+  case CODED:
+    moveSurface();
+    break;
+
+  case '+':
+    moveBy += 1;
+    break;
+
+  case '-':
+    if (moveBy >0) moveBy -= 1;
+    break;
+
+  case 'x':
+    scaleSurface(2);
+    break;
+  case 'X':
+    scaleSurface(-2);
+    break;
+  }
+}
+
+// Not working.
+void scaleSurface(float sf) {
+}
+
+void moveSurface() {
+
+  if (ks1.isCalibrating()) {
+
+
+    float x = ap.x;
+    float y = ap.y;
+    float m = moveBy;
+
+    if (keyCode == UP) y -= m;
+    if (keyCode == DOWN) y += m;
+    if (keyCode == LEFT) x -= m;
+    if (keyCode == RIGHT) x += m;
+
+
+    ap.moveTo(x, y);
+
+    if (lockSides) {
+      if (ap == surface1) surface3.moveTo(surface3.x, ap.y);
+      if (ap == surface3) surface1.moveTo(surface1.x, ap.y);
+    }
+  }
+  else {
+    if (keyCode == UP) textY -= 5;
+    if (keyCode == DOWN) textY += 5;
   }
 }
