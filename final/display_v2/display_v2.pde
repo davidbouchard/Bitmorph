@@ -9,10 +9,14 @@ import java.io.*;
 import netP5.*;
 import oscP5.*;
 import deadpixel.keystone.*;
+import java.net.*;
+import java.util.*;
 
 import com.jogamp.opengl.*;
 
 // GLOBAL PARAMETERS
+
+int INFO_TIMEOUT = 15; // timeout for the info screen
 
 int TIMEOUT = 55;  // in seconds, this controls the amount of time the creature will stay on the screen 
 float SPIN_SPEED_MAX = 0.005;
@@ -30,14 +34,17 @@ Model arrow;
 
 String lastCode = "";
 String[] areaNames = {"sci", "hum", "liv", "inn", "spa"};
+HashMap<String, String> areaFullNames = new HashMap();
 
 enum State {
   FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT, 
-    SPIN, IDLE
+    SPIN, IDLE, INFO
 } 
 
 // The current area
 String area;
+
+boolean mirrorOverlay = false;
 
 State state = State.IDLE;
 
@@ -68,11 +75,13 @@ GL2ES2 gl;
 boolean showAlreadyVisited = false;
 boolean showFoundEverything = false;
 
+Properties configFile;
+
 //===================================================
 void settings() {
   // Load properties 
   try {
-    Properties configFile = new Properties();
+    configFile = new Properties();
     String dp = dataPath("config.properties");
     FileInputStream f = new FileInputStream(dp);
     configFile.load(f);
@@ -98,22 +107,33 @@ void setup() {
   hint(DISABLE_TEXTURE_MIPMAPS);
   noCursor();
 
+  // this will run again everytime the INFO card is scanned, but just set initial values  
+  checkIPs();
+
+  // this is used to show the full name on screen in the INFO state
+  areaFullNames.put("liv", "Living Earth");
+  areaFullNames.put("inn", "Innovation Centre");
+  areaFullNames.put("spa", "Space");
+  areaFullNames.put("hum", "Human Edge");
+  areaFullNames.put("sci", "Science Arcade");
+
+  // I think this does fuck all.
   pgl = (PJOGL)beginPGL();
   gl = pgl.gl.getGL2ES2();
   gl.glEnable(gl.GL_CULL_FACE);
   endPGL();
 
-  // PI simulator
+  // PI simulator!
   //frameRate(10);
 
   osc = new OscP5(this, listeningPort);
   osc.plug(this, "scan", "/scan"); 
 
-  middle = createGraphics(width, height, P3D); 
-
+  // Used to display the character + transition from previous character
   prevModel = new Model();
   model = new Model();
 
+  // The IDLE state graphic 
   arrow = new Model();
   PImage arrowImage = loadImage("arrow.png");
   arrow.setImage(arrowImage, null, arrowImage, null); 
@@ -127,7 +147,7 @@ void setup() {
   right = createGraphics(widthLonger, widthShorter, P3D);
 
   ks1.load();
-  ap = surface2; // for calibration 
+  ap = surface2; // for calibration, select middle surface to begin with 
 
   bitFont = createFont("PressStart2P.ttf", 24);
   textFont(bitFont);
@@ -196,7 +216,8 @@ void renderOverlay(PGraphics g) {
   g.textAlign(CENTER);
   g.fill(255); 
   g.textSize(24);
-  g.scale(-1, 1);
+  if (mirrorOverlay) g.scale(-1, 1);
+
   g.translate(width/2, 0);
   if (showAlreadyVisited) {
     g.text("Already visited!\nTry looking for\nanother terminal!", 0, textY);
@@ -205,7 +226,13 @@ void renderOverlay(PGraphics g) {
   if (showFoundEverything) {
     g.text("You found the last terminal!\nGreat job!", 0, textY);
   }
-  
+
+  if (state == State.INFO) {
+    g.text(areaFullNames.get(area), 0, textY);
+    g.text("W: " + wIP, 0, textY+28);
+    g.text("E: " + eIP, 0, textY+54);
+    g.text("P: " + pIP, 0, textY+78);
+  }
 }
 
 //===================================================
@@ -267,6 +294,12 @@ void renderScene(PGraphics g) {
     spinAngle += spinSpeed;
     arrow.renderFast(g);
     break;
+
+    //---------------------------------------------
+  case INFO:
+    // The info will get displayed in the overlay 
+    if (timer.isFinished()) state = State.IDLE;
+    break;
   }
 }
 
@@ -288,50 +321,6 @@ void drawMask(float[][] mask, float xx, float yy) {
 
   popMatrix();
 }
-
-//===================================================
-// Called when a scan event is received over OSC
-void scan(String code) {       
-  println("Received code: " + code);
-  code = code.substring(0, 4); // temporary fix -> trim to 4 characters
-
-  String area = areaNames[int(random(0, 4))];
-  String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + area;  
-  println("using random area:" + area);
-
-  PImage img = null;
-  if (code.equals("abcd")) img = loadImage("test.png");
-  else {
-    img = loadImage(url, "png");
-  }
-
-  SpriteSheet s = new SpriteSheet(img);
-
-  if (s.hasVisitedAll()) {
-    showFoundEverything = true;
-  } else if (s.hasVisited(area)) {
-    println("Already visited");  
-    showAlreadyVisited= true;
-  }
-
-
-
-
-  int stage = 0; // TODO: get from Sprite sheet
-  sounds.playSong(stage);   
-
-  // Update the model objects
-  prevModel.setImage(s.pFront, s.pFront_d, s.pBack, s.pBack_d);  
-  model.setImage(s.front, s.front_d, s.back, s.back_d);
-
-  // Start the animation 
-  state = State.FADE_IN_PREVIOUS;
-  spinAngle = -PI/2;
-  mAnim.reset();
-
-  // TODO start in a different state IF this is an already visited station
-}
-
 
 
 //===================================================
@@ -437,9 +426,20 @@ void moveSurface() {
       if (ap == surface1) surface3.moveTo(surface3.x, ap.y);
       if (ap == surface3) surface1.moveTo(surface1.x, ap.y);
     }
-  }
-  else {
+  } else {
     if (keyCode == UP) textY -= 5;
     if (keyCode == DOWN) textY += 5;
+  }
+}
+
+void updateConfigFile() {
+  configFile.setProperty("AREA", area);
+  try {
+    String dp = dataPath("config.properties");
+    FileOutputStream f = new FileOutputStream(dp);
+    configFile.store(f, null);
+  }
+  catch (Exception e) {
+    e.printStackTrace();
   }
 }
