@@ -51,8 +51,11 @@ if __name__ == "__main__":
             accountID = result[-4:]
             
             # special command to shutdown the pi 
-            if accountID == "####":
+            if accountID == "0000":
             	os.system("sudo shutdown now -h")
+
+            if accountID == "0001":
+                os.system("sudo reboot now")
             
             if prevScan != accountID:
                prevScan = accountID

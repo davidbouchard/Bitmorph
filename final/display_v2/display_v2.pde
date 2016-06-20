@@ -14,7 +14,7 @@ import com.jogamp.opengl.*;
 
 // GLOBAL PARAMETERS
 
-int TIMEOUT = 5;  // in seconds, this controls the amount of time the creature will stay on the screen 
+int TIMEOUT = 55;  // in seconds, this controls the amount of time the creature will stay on the screen 
 float SPIN_SPEED_MAX = 0.005;
 
 OscP5 osc;
@@ -188,7 +188,7 @@ void draw() {
 //===================================================
 // Use for text / this will not rotate and only appear in the middle panel 
 
-float textY = 50;
+float textY = 150;
 
 void renderOverlay(PGraphics g) {  
   g.noLights();
@@ -196,13 +196,16 @@ void renderOverlay(PGraphics g) {
   g.textAlign(CENTER);
   g.fill(255); 
   g.textSize(24);
+  g.scale(-1, 1);
+  g.translate(width/2, 0);
   if (showAlreadyVisited) {
-    g.text("Already visited!\nTry looking for\nanother terminal!", g.width/2, textY);
+    g.text("Already visited!\nTry looking for\nanother terminal!", 0, textY);
   }
 
   if (showFoundEverything) {
-    g.text("You found the last terminal!\nGreat job!", g.width/2, textY);
+    g.text("You found the last terminal!\nGreat job!", 0, textY);
   }
+  
 }
 
 //===================================================
