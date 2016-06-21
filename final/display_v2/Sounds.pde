@@ -75,6 +75,10 @@ class Sounds {
   }
   
   void loadMusic() {
+    if (music != null) {
+      music.pause();
+      music.close();
+    }
     music = minim.loadFile("sounds/music/" + AREA + ".wav");  
   }
 }

@@ -130,8 +130,48 @@ class Model {
  
   //------------------------------------------------------------
   void renderFrontOnlyRect(PGraphics g) {
+    PImage image = front;
+    PImage depth = frontDepth;
     g.noStroke();
+    g.rectMode(CENTER);
     // Try drawing using rectangles to speed up the transitions 
+    for (int y = 0; y < image.height; y++) { 
+      for (int x = 0; x < image.width; x++) { 
+        color pixel = image.get(x, y);  
+        float a = alpha(pixel);  // Saves the alpha (transparency)                  
+        if (a == 255) { // If the alpha is 100%
+          float xx = (x-centerX) * pSize;  // Scale and center the new pixel on the x axis
+          float yy = (y-centerY) * pSize;  // Scale and center the new pixel on the y axis
+
+          float b = 255;
+          
+          // check the mask 
+          if (mask[y][x] <= 0) {
+            continue;
+          }  
+
+          // if there is a depth map, use it! 
+          if (depth != null) b = brightness(depth.get(x, y));
+
+          float extrude = map(b, 0, 255, pSize*2, pSize);
+
+
+          // convert black pixels on the edge into another color 
+          if (brightness(pixel) < 40) { 
+            if (hasBlankNeighbour(image, x, y)) {
+              pixel = color(200);
+              //continue;
+            }
+          }
+
+          g.pushMatrix();
+          g.translate(xx, yy, extrude);
+          g.fill(pixel);                    
+          g.rect(0, 0, pSize, pSize);
+          g.popMatrix();
+        }    // End of image display
+      }    // End of x coordinate parsing
+    }
   }
   
   void renderFast(PGraphics g) {

@@ -89,6 +89,7 @@ void scan(String code) {
       println("VICTORY STAGE");
       showFoundEverything = true;
       showAlreadyVisited = false;
+      showOverlay = true;
       sounds.setStage(sounds.VICTORY);
     }
 
@@ -99,7 +100,8 @@ void scan(String code) {
     
   } else {
     println("ALREADY VISITED");
-    showAlreadyVisited = true;    
+    showAlreadyVisited = true; 
+    showOverlay = true;
     if (s.stage >= 5) {
       sounds.setStage(sounds.VICTORY);
       showAlreadyVisited = false;

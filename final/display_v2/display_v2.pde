@@ -16,8 +16,10 @@ import com.jogamp.opengl.*;
 
 
 // TODO list:
-// - add an overlay timer so the text disappears before the characters has shown up 
-
+// - add an overlay timer so the text disappears before the characters has shown up
+// - generally redesign overlay to be less contrived, if we want to add more messages
+// - figureout what to do with the outline (do we fix assets OR do we automatically re-color)
+// - add a heartbeat script (maybe through a new controller in the database?)
 
 // GLOBAL PARAMETERS
 
@@ -237,7 +239,7 @@ void renderOverlay(PGraphics g) {
   if (showAlreadyVisited == true || showFoundEverything == true) {
     // black background
     g.rectMode(CENTER);
-    g.fill(0, 128); 
+    g.fill(255, 0, 0, 128); 
     g.rect(g.width/2 + overlayX, overlayY, 420, 130);
   }
   g.textFont(bitFont);
@@ -272,7 +274,7 @@ void renderScene(PGraphics g) {
     //---------------------------------------------
   case FADE_IN_PREVIOUS:
     mAnim.pixelateIn(prevModel.mask);
-    prevModel.render(g); 
+    prevModel.renderFrontOnlyRect(g); 
     if (mAnim.done) {
       mAnim.reset();
       state = State.FADE_IN_WAIT;
@@ -282,7 +284,7 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case FADE_IN_WAIT:
-    prevModel.render(g); 
+    prevModel.renderFrontOnlyRect(g); 
     if (timer.isFinished()) {
       state = State.FADE_IN_CURRENT;
       sounds.playTransition();
@@ -293,8 +295,8 @@ void renderScene(PGraphics g) {
   case FADE_IN_CURRENT:
     mAnim.pixelateIn(model.mask);
     mAnim.reverse(prevModel.mask, model.mask);
-    prevModel.render(g);
-    model.render(g); 
+    prevModel.renderFrontOnlyRect(g);
+    model.renderFrontOnlyRect(g); 
     if (mAnim.done) {
       state = State.SPIN;
       timer = new Timer(1000 * TIMEOUT); 
