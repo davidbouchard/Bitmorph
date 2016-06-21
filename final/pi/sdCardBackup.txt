@@ -1,0 +1,13 @@
+To backup: 
+
+sudo dd bs=4M if=/dev/sdb | gzip > of=bitmorph.img.gz 
+
+Where /dev/sdb is the location of the SD card
+
+
+
+
+To restore the image onto a card:
+
+gunzip --stdout bitmorph.img.gz | sudo dd bs=4M of=/dev/sdb
+
