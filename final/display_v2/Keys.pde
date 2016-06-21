@@ -13,7 +13,7 @@ void keyPressed() {
     break;
 
   case ' ':
-    scan("a005");
+    scan("a006");
     break;
   case 'c':
     cursor();

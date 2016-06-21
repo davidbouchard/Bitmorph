@@ -159,7 +159,7 @@ class Model {
           // convert black pixels on the edge into another color 
           if (brightness(pixel) < 40) { 
             if (hasBlankNeighbour(image, x, y)) {
-              pixel = color(200);
+              pixel = color(33);
               //continue;
             }
           }
