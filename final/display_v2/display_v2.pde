@@ -43,7 +43,8 @@ enum State {
 // The current area
 String AREA;
 
-boolean mirrorOverlay = false;
+// This will cause the text to be mirrored (Only in fullscreen) 
+boolean mirrorOverlay;
 
 State state = State.IDLE;
 
@@ -97,10 +98,12 @@ void settings() {
     int fs = Integer.parseInt(configFile.getProperty("FULLSCREEN"));
     if (fs == 1) {
       fullScreen(P3D);
+      mirrorOverlay = true;
     } else {
       int w =  Integer.parseInt(configFile.getProperty("WIN_W"));
       int h =  Integer.parseInt(configFile.getProperty("WIN_H"));      
       size(w, h, P3D);
+      mirrorOverlay = false;
     }
   }
   catch(Exception e) {
@@ -290,7 +293,7 @@ void renderScene(PGraphics g) {
     model.render(g); 
     if (mAnim.done) {
       state = State.SPIN;
-      timer = new Timer(1000 * TIMEOUT); // one minute before timeout 
+      timer = new Timer(1000 * TIMEOUT); 
       spinSpeed = 0;
       fadeOut = 1;
       sounds.playTransition();
@@ -305,8 +308,11 @@ void renderScene(PGraphics g) {
     if (timer.isFinished()) {
       if (fadeOut > 0) fadeOut -= 0.01;
       else {
-        state = State.IDLE;        
         sounds.fadeOut();
+        // load new sounds 
+        sounds.loadSFX();
+        sounds.loadGrow();
+        state = State.IDLE;                
       }
     }
 
@@ -350,8 +356,15 @@ void drawMask(float[][] mask, float xx, float yy) {
 }
 
 
+//===================================================
+void setArea(String a) {
+  AREA = a;
+  sounds.loadMusic();
+  updateConfigFile();  
+}
 
 
+//===================================================
 void updateConfigFile() {
   configFile.setProperty("AREA", AREA);
   configFile.setProperty("OVERLAY_X", ""+overlayX);

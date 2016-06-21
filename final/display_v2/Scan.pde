@@ -9,37 +9,33 @@ void scan(String code) {
   boolean triggerInfo = false;
 
   // first look for special codes
-  if (code.equals("0002")) triggerInfo = true;
+  if (code.equals("0002")) { // info code
+    triggerInfo = true;
+  }
 
   // Configure terminal codes
   if (code.equals("0003")) {
-    AREA = "spa";
-    updateConfigFile();
+    setArea("spa");
     triggerInfo = true;
   }
 
   if (code.equals("0004")) {
-    AREA = "sci";
-    updateConfigFile();
+    setArea("sci");
     triggerInfo = true;
   }
 
   if (code.equals("0005")) {
-    AREA = "hum";
-    updateConfigFile();
+    setArea("hum");
     triggerInfo = true;
   }
 
   if (code.equals("0006")) {
-    AREA = "liv";
-    updateConfigFile();
+    setArea("liv");
     triggerInfo = true;
   }
 
   if (code.equals("0007")) {
-    AREA = "inn";
-    updateConfigFile();
-    state = State.INFO;
+    setArea("inn");
     triggerInfo = true;
   }
 
@@ -75,8 +71,7 @@ void scan(String code) {
 
     // This needs to depend on the stage data 
     if (s.stage == 1) sounds.setStage(sounds.CRACK);
-    if (s.stage == 2 || s.stage == 3) sounds.setStage(sounds.GROW);
-    if (s.stage == 4) sounds.setStage(sounds.SFX);
+    if (s.stage == 2 || s.stage == 3 || s.stage == 4) sounds.setStage(sounds.GROW);    
     if (s.stage >= 5) {
       println("VICTORY STAGE");
       showFoundEverything = true;
@@ -92,8 +87,14 @@ void scan(String code) {
   } else {
     println("ALREADY VISITED");
     showAlreadyVisited = true;    
-    if (s.stage >= 5) sounds.setStage(sounds.VICTORY);
-    else sounds.setStage(sounds.GROW);
+    if (s.stage >= 5) {
+      sounds.setStage(sounds.VICTORY);
+      showAlreadyVisited = false;
+      showFoundEverything = true;
+    }
+    else {
+      sounds.setStage(sounds.GROW);
+    }
     // Update the model objects
     model.setImage(s.front, s.front_d, s.back, s.back_d);
     prevModel.setBlank();    
@@ -101,10 +102,5 @@ void scan(String code) {
     spinAngle = -PI/2;
     mAnim.reset();
   }
-
-  if (s.hasVisitedAll()) {
-    println("Found everything!");
-    showFoundEverything = true;
-    showAlreadyVisited = false;
-  }
+ 
 }

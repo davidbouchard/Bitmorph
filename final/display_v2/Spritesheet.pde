@@ -28,6 +28,7 @@ class SpriteSheet {
     if (w == 100) { 
       // This is NOT the first visit 
       firstVisit = false;
+      stage = 0;
       front    = s.get(0, 0, 50, 50);
       front_d  = s.get(0, 50, 50, 50); 
       back     = s.get(0, 100, 50, 50); 
@@ -35,6 +36,7 @@ class SpriteSheet {
     } else {
       // This IS the first visit 
       firstVisit = true;
+      stage = 1;
       front    = s.get(50, 0, 50, 50);
       front_d  = s.get(50, 50, 50, 50); 
       back     = s.get(50, 100, 50, 50); 
@@ -46,9 +48,7 @@ class SpriteSheet {
       pBack_d  = s.get(0, 150, 50, 50);
     }
 
-    // read the bit mask to get the history of visits 
-
-    stage = 1;
+    // read the bit mask to get the history of visits  
     for (int i=0; i < 5; i++) {
       color c = s.get(i, 200); 
       color white = color(255);
@@ -63,11 +63,8 @@ class SpriteSheet {
   }
 
   boolean hasVisitedAll() {
-    boolean yes = true;
-    for (int i=0; i < 5; i++) {
-      yes = visited[i];
-    }
-    return yes;
+    if (stage == 5 || stage == 6) return true;
+    return false;
   }
 
   boolean hasVisited(String areaName) {

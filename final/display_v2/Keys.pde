@@ -13,8 +13,7 @@ void keyPressed() {
     break;
 
   case ' ':
-    //scan("abcd");
-    scan("dfgb");
+    scan("a004");
     break;
   case 'c':
     cursor();
@@ -78,8 +77,7 @@ void keyPressed() {
   case 'X':
     scaleSurface(-2);
     break;
-  
-  
+   
   case 'y':
     AREA = "liv";
     println("We are now: " + areaFullNames.get(AREA));
@@ -124,8 +122,7 @@ void moveSurface() {
     if (keyCode == DOWN) y += m;
     if (keyCode == LEFT) x -= m;
     if (keyCode == RIGHT) x += m;
-
-
+ 
     ap.moveTo(x, y);
 
     if (lockSides) {
