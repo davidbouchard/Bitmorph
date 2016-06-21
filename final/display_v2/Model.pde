@@ -7,8 +7,8 @@ class Model {
   PImage back;
   PImage backDepth;
 
-  float centerX = 25;
-  float centerY = 25;
+  int centerX = 25;
+  int centerY = 25;
 
   float [][] mask = new float[50][50];
 
@@ -43,16 +43,25 @@ class Model {
     back = theBack;
     backDepth = theBackDepth;
     loaded = true;
-
+    
+    // create the pixel mask used for transitions and find the model's bounding box 
+    BoundingBox bb = new BoundingBox();
+    
     mask = new float[50][50];
     for (int y = 0; y < front.height; y++) { 
       for (int x = 0; x < front.width; x++) {
         color pixel = front.get(x, y);
         float a = alpha(pixel);  // Saves the alpha (transparency)                  
-        if (a == 255) mask[y][x] = 0; 
+        if (a == 255) {
+          mask[y][x] = 0;
+          bb.extend(x, y);
+        }
         else mask[y][x] = -1;
       }
     }
+    
+    // DEBUG ~ making sure the bounding box is correct
+    //front.set(bb.centerX, bb.centerY, color(255));
     
     frontCache = createShape();
     buildCache(frontCache, front, frontDepth, 1);
@@ -61,6 +70,12 @@ class Model {
     buildCache(backCache, back, backDepth, -1);
     
     
+  }
+
+  void setBlank() {
+    front = createImage(RGB, 50, 50);
+    back = createImage(RGB, 50, 50);
+    setImage(front, null, back, null);
   }
 
   //------------------------------------------------------------
@@ -260,5 +275,37 @@ void box_tri(PShape s, float x, float y, float z, float d, float zd, int[] mask)
     s.vertex(v4.x, v4.y, v4.z);
     s.vertex(v0.x, v0.y, v0.z);
     s.vertex(v3.x, v3.y, v3.z);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class BoundingBox {
+  
+  int minX = 50;
+  int minY = 50; 
+  int maxX = 0;
+  int maxY = 0;
+  
+  int x;
+  int y; 
+  int w; 
+  int h; 
+  
+  int centerX;
+  int centerY;
+ 
+  void extend(int nx, int ny) { 
+     minX = min(nx, minX); 
+     maxX = max(nx, maxX); 
+     minY = min(ny, minY); 
+     maxY = max(ny, maxY); 
+     
+     x = minX;
+     y = minY;
+     w = maxX - minX;
+     h = maxY - minY;
+     
+     centerX = x + w/2;
+     centerY = y + h/2;
   }
 }

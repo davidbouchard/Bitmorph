@@ -16,9 +16,8 @@ import com.jogamp.opengl.*;
 
 // GLOBAL PARAMETERS
 
-int INFO_TIMEOUT = 15; // timeout for the info screen
-
-int TIMEOUT = 55;  // in seconds, this controls the amount of time the creature will stay on the screen 
+int INFO_TIMEOUT; // timeout for the info screen
+int TIMEOUT;  // in seconds, this controls the amount of time the creature will stay on the screen 
 float SPIN_SPEED_MAX = 0.005;
 
 OscP5 osc;
@@ -42,7 +41,7 @@ enum State {
 } 
 
 // The current area
-String area;
+String AREA;
 
 boolean mirrorOverlay = false;
 
@@ -74,6 +73,7 @@ GL2ES2 gl;
 
 boolean showAlreadyVisited = false;
 boolean showFoundEverything = false;
+boolean showOverlay = false;
 
 Properties configFile;
 
@@ -86,7 +86,14 @@ void settings() {
     FileInputStream f = new FileInputStream(dp);
     configFile.load(f);
     println(configFile);
-    area = configFile.getProperty("AREA");
+    AREA = configFile.getProperty("AREA");
+
+    overlayY = Integer.parseInt(configFile.getProperty("OVERLAY_Y"));
+    overlayX = Integer.parseInt(configFile.getProperty("OVERLAY_X"));
+
+    INFO_TIMEOUT = Integer.parseInt(configFile.getProperty("INFO_TIMEOUT")); 
+    TIMEOUT = Integer.parseInt(configFile.getProperty("TIMEOUT"));
+
     int fs = Integer.parseInt(configFile.getProperty("FULLSCREEN"));
     if (fs == 1) {
       fullScreen(P3D);
@@ -157,7 +164,7 @@ void setup() {
 
   state = State.IDLE;
 
-  sounds = new Sounds(this, area);
+  sounds = new Sounds(this);
 }
 
 //===================================================
@@ -189,7 +196,6 @@ void draw() {
   middle.rotateY(spinAngle);
   renderScene(middle);
   middle.popMatrix();
-  renderOverlay(middle);
   middle.endDraw();
 
   // draw using the surface objects
@@ -198,41 +204,56 @@ void draw() {
   surface2.render(middle);
   surface3.render(right);
 
+  renderOverlay(g);
+
   if (ks1.isCalibrating()) {
-    textSize(12);
+    textAlign(LEFT);
+    textSize(12);    
     text("Lock sides: " + lockSides, 30, 30);
     text("Move by: " + moveBy, 30, 60);
+    text("Overlay Y: " + overlayY, 30, 90);
   }
 }
 
 //===================================================
 // Use for text / this will not rotate and only appear in the middle panel 
 
-float textY = 150;
+int overlayY;
+int overlayX; 
 
 void renderOverlay(PGraphics g) {  
+  if (showOverlay == false) return;
   g.noLights();
+  g.pushMatrix();
+  if (showAlreadyVisited == true || showFoundEverything == true) {
+    // black background
+    g.rectMode(CENTER);
+    g.fill(0, 128); 
+    g.rect(g.width/2 + overlayX, overlayY, 420, 130);
+  }
   g.textFont(bitFont);
-  g.textAlign(CENTER);
+  g.textAlign(CENTER, CENTER);    
   g.fill(255); 
   g.textSize(24);
   if (mirrorOverlay) g.scale(-1, 1);
+  g.translate(g.width/2 + overlayX, 0);
 
-  g.translate(width/2, 0);
   if (showAlreadyVisited) {
-    g.text("Already visited!\nTry looking for\nanother terminal!", 0, textY);
+    g.text("Already visited!\nTry looking for\nanother terminal!", 0, overlayY);
   }
 
   if (showFoundEverything) {
-    g.text("You found the last terminal!\nGreat job!", 0, textY);
+    g.text("Great job!\nYou found\nall the terminals!", 0, overlayY);
   }
 
   if (state == State.INFO) {
-    g.text(areaFullNames.get(area), 0, textY);
-    g.text("W: " + wIP, 0, textY+28);
-    g.text("E: " + eIP, 0, textY+54);
-    g.text("P: " + pIP, 0, textY+78);
+    g.text(areaFullNames.get(AREA), 0, overlayY);
+    g.text("W: " + wIP, 0, overlayY+28);
+    g.text("E: " + eIP, 0, overlayY+54);
+    g.text("P: " + pIP, 0, overlayY+78);
   }
+
+  g.popMatrix();
 }
 
 //===================================================
@@ -255,7 +276,10 @@ void renderScene(PGraphics g) {
     //---------------------------------------------
   case FADE_IN_WAIT:
     prevModel.render(g); 
-    if (timer.isFinished()) state = State.FADE_IN_CURRENT;
+    if (timer.isFinished()) {
+      state = State.FADE_IN_CURRENT;
+      sounds.playTransition();
+    }
     break;
 
     //---------------------------------------------
@@ -269,17 +293,20 @@ void renderScene(PGraphics g) {
       timer = new Timer(1000 * TIMEOUT); // one minute before timeout 
       spinSpeed = 0;
       fadeOut = 1;
+      sounds.playTransition();
     }
     break;
 
     //---------------------------------------------
   case SPIN:
+    showOverlay = true;
     spinAngle += spinSpeed;
-    if (spinSpeed < 0.005) spinSpeed += 0.0001; 
+    if (spinSpeed < SPIN_SPEED_MAX) spinSpeed += 0.0001; 
     if (timer.isFinished()) {
       if (fadeOut > 0) fadeOut -= 0.01;
       else {
-        state = State.IDLE;
+        state = State.IDLE;        
+        sounds.fadeOut();
       }
     }
 
@@ -288,15 +315,15 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case IDLE:
-    showAlreadyVisited = false;
-    showFoundEverything = false;
-    spinSpeed = 0.005;
+    showOverlay = false;
+    spinSpeed = SPIN_SPEED_MAX;
     spinAngle += spinSpeed;
     arrow.renderFast(g);
     break;
 
     //---------------------------------------------
   case INFO:
+  showOverlay = true;
     // The info will get displayed in the overlay 
     if (timer.isFinished()) state = State.IDLE;
     break;
@@ -323,117 +350,12 @@ void drawMask(float[][] mask, float xx, float yy) {
 }
 
 
-//===================================================
-CornerPinSurface ap;
-color ac = color(0, 255, 0);
-color dc = color(255);
-boolean lockSides = false;
-float moveBy = 10;
 
-void keyPressed() {
-  switch(key) {
-  case ' ':
-    scan("abcd");
-    break;
-  case 'c':
-    cursor();
-    ks1.toggleCalibration();
-    break;
-  case 's':
-    ks1.save();
-    break;
-  case 'l':
-    ks1.load();
-    break;
-
-  case 'v':
-    showAlreadyVisited = !showAlreadyVisited;
-    break;
-
-  case 'w':
-    showFoundEverything = !showFoundEverything;    
-    break;
-
-  case '1':   
-    ap.setGridColor(dc);
-    ap = surface1;
-    ap.setGridColor(ac);
-    break;
-
-
-  case '2':   
-    ap.setGridColor(dc);
-    ap = surface2;
-    ap.setGridColor(ac);
-    break;
-
-  case '3':   
-    ap.setGridColor(dc);
-    ap = surface3;
-    ap.setGridColor(ac);
-    break;
-
-  case 'z':
-    lockSides = false;
-    break;
-  case 'Z':
-    lockSides = true;
-    break;
-
-  case CODED:
-    moveSurface();
-    break;
-
-  case '+':
-    moveBy += 1;
-    break;
-
-  case '-':
-    if (moveBy >0) moveBy -= 1;
-    break;
-
-  case 'x':
-    scaleSurface(2);
-    break;
-  case 'X':
-    scaleSurface(-2);
-    break;
-  }
-}
-
-// Not working.
-void scaleSurface(float sf) {
-}
-
-void moveSurface() {
-
-  if (ks1.isCalibrating()) {
-
-
-    float x = ap.x;
-    float y = ap.y;
-    float m = moveBy;
-
-    if (keyCode == UP) y -= m;
-    if (keyCode == DOWN) y += m;
-    if (keyCode == LEFT) x -= m;
-    if (keyCode == RIGHT) x += m;
-
-
-    ap.moveTo(x, y);
-
-    if (lockSides) {
-      if (ap == surface1) surface3.moveTo(surface3.x, ap.y);
-      if (ap == surface3) surface1.moveTo(surface1.x, ap.y);
-    }
-  } else {
-    if (keyCode == UP) textY -= 5;
-    if (keyCode == DOWN) textY += 5;
-  }
-}
 
 void updateConfigFile() {
-  configFile.setProperty("AREA", area);
+  configFile.setProperty("AREA", AREA);
+  configFile.setProperty("OVERLAY_X", ""+overlayX);
+  configFile.setProperty("OVERLAY_Y", ""+overlayY);
   try {
     String dp = dataPath("config.properties");
     FileOutputStream f = new FileOutputStream(dp);

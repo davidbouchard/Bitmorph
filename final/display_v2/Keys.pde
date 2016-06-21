@@ -7,13 +7,14 @@ float moveBy = 10;
 
 void keyPressed() {
   switch(key) {
-    
+  
   case 'f': 
     sounds.fadeOut();
     break;
-    
+
   case ' ':
-    scan("abcd");
+    //scan("abcd");
+    scan("dfgb");
     break;
   case 'c':
     cursor();
@@ -39,7 +40,6 @@ void keyPressed() {
     ap = surface1;
     ap.setGridColor(ac);
     break;
-
 
   case '2':   
     ap.setGridColor(dc);
@@ -78,7 +78,34 @@ void keyPressed() {
   case 'X':
     scaleSurface(-2);
     break;
+  
+  
+  case 'y':
+    AREA = "liv";
+    println("We are now: " + areaFullNames.get(AREA));
+    break;
+  
+  case 'u':
+    AREA = "hum";
+    println("We are now: " + areaFullNames.get(AREA));
+    break;
+    
+  case 'i':
+    AREA = "inn";
+    println("We are now: " + areaFullNames.get(AREA));
+    break;
+  
+  case 'o':
+    AREA = "sci";
+    println("We are now: " + areaFullNames.get(AREA));
+    break;
+  
+  case 'p':
+    AREA = "spa";
+    println("We are now: " + areaFullNames.get(AREA));
+    break;  
   }
+  
 }
 
 // Not working yet
@@ -88,7 +115,6 @@ void scaleSurface(float sf) {
 void moveSurface() {
 
   if (ks1.isCalibrating()) {
-
 
     float x = ap.x;
     float y = ap.y;
@@ -107,7 +133,9 @@ void moveSurface() {
       if (ap == surface3) surface1.moveTo(surface1.x, ap.y);
     }
   } else {
-    if (keyCode == UP) textY -= 5;
-    if (keyCode == DOWN) textY += 5;
+    if (keyCode == UP) overlayY -= 5;
+    if (keyCode == DOWN) overlayY += 5;
+    if (keyCode == LEFT) overlayX -= 5;
+    if (keyCode == RIGHT) overlayX += 5;
   }
 }
