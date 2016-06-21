@@ -128,6 +128,11 @@ class Model {
     renderSide(g, front, frontDepth, 1); 
   }
  
+  //------------------------------------------------------------
+  void renderFrontOnlyRect(PGraphics g) {
+    g.noStroke();
+    // Try drawing using rectangles to speed up the transitions 
+  }
   
   void renderFast(PGraphics g) {
     if (!loaded) return;

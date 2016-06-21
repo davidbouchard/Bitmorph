@@ -28,6 +28,7 @@ class Sounds {
   
   void playMusic() {
     music.setGain(0);    
+    music.loop();
   }
   
   void fadeOut() {
