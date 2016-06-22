@@ -14,6 +14,13 @@ import java.util.*;
 
 import com.jogamp.opengl.*;
 
+
+// TODO list:
+// - add an overlay timer so the text disappears before the characters has shown up
+// - generally redesign overlay to be less contrived, if we want to add more messages
+// - figureout what to do with the outline (do we fix assets OR do we automatically re-color)
+// - add a heartbeat script (maybe through a new controller in the database?)
+
 // GLOBAL PARAMETERS
 
 int INFO_TIMEOUT; // timeout for the info screen
@@ -28,6 +35,7 @@ Model model;
 MaskAnimator mAnim = new MaskAnimator();
 
 Timer timer = new Timer(1000); 
+Timer overlayTimer = new Timer(1000);
 
 Model arrow;
 
@@ -226,49 +234,47 @@ int overlayX;
 
 void renderOverlay(PGraphics g) {  
   if (showOverlay == false) return;
-  g.noLights();
+  //g.noLights();
   g.pushMatrix();
   if (showAlreadyVisited == true || showFoundEverything == true) {
     // black background
-    g.rectMode(CENTER);
-    g.fill(0, 128); 
-    g.rect(g.width/2 + overlayX, overlayY, 420, 130);
+    //g.rectMode(CENTER);
+    //g.fill(255, 0, 0, 128); 
+    //g.rect(g.width/2 + overlayX, overlayY, 420, 130);
   }
   g.textFont(bitFont);
   g.textAlign(CENTER, CENTER);    
   g.fill(255); 
   g.textSize(24);
-  if (mirrorOverlay) g.scale(-1, 1);
   g.translate(g.width/2 + overlayX, 0);
-
-  if (showAlreadyVisited) {
-    g.text("Already visited!\nTry looking for\nanother terminal!", 0, overlayY);
-  }
-
-  if (showFoundEverything) {
-    g.text("Great job!\nYou found\nall the terminals!", 0, overlayY);
-  }
-
+  if (mirrorOverlay) g.scale(-1, 1);
+  
   if (state == State.INFO) {
     g.text(areaFullNames.get(AREA), 0, overlayY);
     g.text("W: " + wIP, 0, overlayY+28);
     g.text("E: " + eIP, 0, overlayY+54);
     g.text("P: " + pIP, 0, overlayY+78);
+  } else {
+    if (showFoundEverything) {
+      g.text("Great job!\nYou found\nall the terminals!", 0, overlayY);
+    } else if (showAlreadyVisited) {
+      g.text("Already visited!\nTry looking for\nanother terminal!", 0, overlayY);
+    }
   }
-
   g.popMatrix();
 }
 
 //===================================================
 void renderScene(PGraphics g) {
   // or is it without the g.? 
-  g.lights();
+  // lights() don't work at all. need to try shader or bust.
+  // g.lights();
 
   switch(state) {
     //---------------------------------------------
   case FADE_IN_PREVIOUS:
     mAnim.pixelateIn(prevModel.mask);
-    prevModel.render(g); 
+    prevModel.renderFrontOnlyRect(g); 
     if (mAnim.done) {
       mAnim.reset();
       state = State.FADE_IN_WAIT;
@@ -278,7 +284,7 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case FADE_IN_WAIT:
-    prevModel.render(g); 
+    prevModel.renderFrontOnlyRect(g); 
     if (timer.isFinished()) {
       state = State.FADE_IN_CURRENT;
       sounds.playTransition();
@@ -289,8 +295,8 @@ void renderScene(PGraphics g) {
   case FADE_IN_CURRENT:
     mAnim.pixelateIn(model.mask);
     mAnim.reverse(prevModel.mask, model.mask);
-    prevModel.render(g);
-    model.render(g); 
+    prevModel.renderFrontOnlyRect(g);
+    model.renderFrontOnlyRect(g); 
     if (mAnim.done) {
       state = State.SPIN;
       timer = new Timer(1000 * TIMEOUT); 
@@ -312,7 +318,7 @@ void renderScene(PGraphics g) {
         // load new sounds 
         sounds.loadSFX();
         sounds.loadGrow();
-        state = State.IDLE;                
+        state = State.IDLE;
       }
     }
 
@@ -329,7 +335,7 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case INFO:
-  showOverlay = true;
+    showOverlay = true;
     // The info will get displayed in the overlay 
     if (timer.isFinished()) state = State.IDLE;
     break;
@@ -360,7 +366,7 @@ void drawMask(float[][] mask, float xx, float yy) {
 void setArea(String a) {
   AREA = a;
   sounds.loadMusic();
-  updateConfigFile();  
+  updateConfigFile();
 }
 
 

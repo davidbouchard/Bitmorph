@@ -28,6 +28,7 @@ class Sounds {
   
   void playMusic() {
     music.setGain(0);    
+    music.loop();
   }
   
   void fadeOut() {
@@ -74,6 +75,10 @@ class Sounds {
   }
   
   void loadMusic() {
+    if (music != null) {
+      music.pause();
+      music.close();
+    }
     music = minim.loadFile("sounds/music/" + AREA + ".wav");  
   }
 }

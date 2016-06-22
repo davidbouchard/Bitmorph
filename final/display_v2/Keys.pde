@@ -13,7 +13,7 @@ void keyPressed() {
     break;
 
   case ' ':
-    scan("a004");
+    scan("a006");
     break;
   case 'c':
     cursor();
@@ -79,27 +79,27 @@ void keyPressed() {
     break;
    
   case 'y':
-    AREA = "liv";
+    setArea("liv");
     println("We are now: " + areaFullNames.get(AREA));
     break;
   
   case 'u':
-    AREA = "hum";
+    setArea("hum");
     println("We are now: " + areaFullNames.get(AREA));
     break;
     
   case 'i':
-    AREA = "inn";
+    setArea("inn");
     println("We are now: " + areaFullNames.get(AREA));
     break;
   
   case 'o':
-    AREA = "sci";
+    setArea("sci");
     println("We are now: " + areaFullNames.get(AREA));
     break;
   
   case 'p':
-    AREA = "spa";
+    setArea("spa");
     println("We are now: " + areaFullNames.get(AREA));
     break;  
   }

@@ -1,9 +1,22 @@
+String prevScan;
+Timer scanTimer = new Timer(1000);
 
 //===================================================
 // Called when a scan event is received over OSC
 void scan(String code) {       
   println("Received code: " + code);
-  code = code.substring(0, 4); // temporary fix -> trim to 4 characters
+  
+  // Trim to 4 characters just in case one of the old cards show up
+  //code = code.substring(0, 4); 
+  
+  if (code.equals(prevScan) && scanTimer.isFinished() == false) {
+    println("duplicate scan");  
+    scanTimer = new Timer(1000);
+    return;
+  }
+  
+  prevScan = code;
+  scanTimer = new Timer(1000); // 1 second before the next scan is possible 
 
   sounds.playScan();
   boolean triggerInfo = false;
@@ -76,6 +89,7 @@ void scan(String code) {
       println("VICTORY STAGE");
       showFoundEverything = true;
       showAlreadyVisited = false;
+      showOverlay = true;
       sounds.setStage(sounds.VICTORY);
     }
 
@@ -86,7 +100,8 @@ void scan(String code) {
     
   } else {
     println("ALREADY VISITED");
-    showAlreadyVisited = true;    
+    showAlreadyVisited = true; 
+    showOverlay = true;
     if (s.stage >= 5) {
       sounds.setStage(sounds.VICTORY);
       showAlreadyVisited = false;
