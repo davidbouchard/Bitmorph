@@ -1,0 +1,13 @@
+Todo list for the raspberry pi:
+
+- add special code handling for the Processing sketch:
+  - code to show your IP address 
+  - special "demo" code?
+  
+- disable screen saver
+
+- create a script to check in every 10 minutes into the database for a health check 
+- if possible, make the same script register the device's IP address for troubleshooting
+
+- test fullscreen mode with keystone and 1248x1024 resolution 
+

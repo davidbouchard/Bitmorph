@@ -50,6 +50,10 @@ void oscEvent(OscMessage incoming) {
 
 void sendOscNet() {
   OscMessage msg = new OscMessage("/scan");
+<<<<<<< HEAD
   msg.add("bcdefg");
+=======
+  msg.add("abshea");
+>>>>>>> master
   oscNet.send(msg, destination);
 }    // End of sendOscNet()

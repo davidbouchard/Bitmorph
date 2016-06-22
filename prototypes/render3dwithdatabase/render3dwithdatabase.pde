@@ -9,6 +9,13 @@ import netP5.*;
 import oscP5.*;
 import deadpixel.keystone.*;
 
+import processing.sound.*;
+
+SoundFile eggHatch1;
+SoundFile eggHatch2;
+SoundFile eggHatch3;
+SoundFile errorSound;
+
 OscP5 oscNet;
 int listeningPort = 9000;
 int netTimerEnd;
@@ -51,7 +58,7 @@ void setup() {
 
   oscNet = new OscP5(this, listeningPort);
   oscNet.plug(this, "moveAlong", "/resend");
-  
+
   dbGrabModel = new Model();
 
   ks1 = new Keystone(this);
@@ -63,6 +70,11 @@ void setup() {
 
   surface3 = ks1.createCornerPinSurface(widthLonger, widthShorter, 20);
   right = createGraphics(widthLonger, widthShorter, P3D);
+
+  eggHatch1 = new SoundFile(this, "HATCHING MIX 1.wav");
+  eggHatch2 = new SoundFile(this, "HATCHING MIX 2.wav");
+  eggHatch3 = new SoundFile(this, "HATCHING MIX 3.wav");
+  errorSound = new SoundFile(this, "ERROR.wav");
 }    // End of setup()
 
 
@@ -112,7 +124,7 @@ void draw() {
 
 
 void renderScene(PGraphics g) { 
-  background(128);    // Set background of each window
+  background(0);    // Set background of each window
   lights();    // Lights creates shadowing effect
   if (modelLoaded) {
     dbGrabModel.render(g);
@@ -123,6 +135,7 @@ void databaseGrab(String ID) {
   stn = stns[int(random(0, 4))];
   dbGrab = loadImage("http://bitmorph.rtanewmedia.ca/OSC/character-update/" + ID + "/" + stn, "png");
   dbGrabModel.setImage(dbGrab.get(50, 0, 50, 50), dbGrab.get(50, 50, 50, 50), dbGrab.get(50, 100, 50, 50), dbGrab.get(50, 150, 50, 50));
+  eggHatch1.play();
   modelLoaded = true;
   println("loaded" + ID);
 }
@@ -132,15 +145,15 @@ void databaseGrab(String ID) {
 
 void oscEvent(OscMessage incoming) {
   println(incoming);
-  try  { 
-  if (incoming.addrPattern().equals("/scan")) {
-    String code = incoming.get(0).stringValue();
-    println(code);
-    databaseGrab(code);
-  }
+  try { 
+    if (incoming.addrPattern().equals("/scan")) {
+      String code = incoming.get(0).stringValue();
+      println(code);
+      databaseGrab(code);
+    }
   } 
   catch(Exception e) { 
-    e.printStackTrace();  
+    e.printStackTrace();
   }
 }    // End of oscEvent
 

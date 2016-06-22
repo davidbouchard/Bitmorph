@@ -5,6 +5,13 @@
 import netP5.*;
 import oscP5.*;
 import deadpixel.keystone.*;
+import processing.sound.*;
+
+SoundFile eggHatch1;
+SoundFile eggHatch2;
+SoundFile eggHatch3;
+SoundFile errorSound;
+
 
 OscP5 oscNet;
 int listeningPort = 9000;
@@ -76,8 +83,8 @@ PImage asset;
 PGraphics left;
 PGraphics middle;
 PGraphics right;
-int widthLonger = 850;
-int widthShorter = 638;
+int widthLonger = 1000;
+int widthShorter = 750;
 
 
 
@@ -88,6 +95,12 @@ void setup() {
 
   oscNet = new OscP5(this, listeningPort);
   oscNet.plug(this, "moveAlong", "/resend");
+
+  eggHatch1 = new SoundFile(this, "HATCHING MIX 1.wav");
+  eggHatch2 = new SoundFile(this, "HATCHING MIX 2.wav");
+  eggHatch3 = new SoundFile(this, "HATCHING MIX 3.wav");
+  errorSound = new SoundFile(this, "ERROR.wav");
+
 
   // EGG ==========================================================================================
   for (int i = 1; i < humEgg.length; i++) { 
@@ -191,7 +204,7 @@ void setup() {
   right = createGraphics(widthLonger, widthShorter, P3D);
 
   //egg = new Model(innEgg[1], innEgg[2]);
-  adult = new Model(innAdult[5], innAdult[6], innAdult[7], innAdult[8]);
+  //adult = new Model(innAdult[5], innAdult[6], innAdult[7], innAdult[8]);
 
   // ACC2 ==========================================================================================
 }    // End of setup()
@@ -216,30 +229,35 @@ void draw() {
         eggPicker = int(random(1, 4));
         if (eggPicker == 1) {
           egg = new Model(humEgg[1], humEgg[2]);
+          eggHatch1.play();
           eggRenderCheck = true;
         } else if (eggPicker == 2) {
           egg = new Model(humEgg[3], humEgg[4]);
           eggRenderCheck = true;
+          eggHatch1.play();
         } else if (eggPicker == 3) {
           egg = new Model(humEgg[5], humEgg[6]);
           eggRenderCheck = true;
+          eggHatch1.play();
         }
       } else if (stationPicker == 2) {
         egg = new Model(innEgg[1], innEgg[2]);
         eggRenderCheck = true;
+        eggHatch2.play();
       } else if (stationPicker == 3) {
         egg = new Model(livEgg[1], livEgg[2]);
         eggRenderCheck = true;
+        eggHatch2.play();
       } else if (stationPicker == 4) {
         egg = new Model(sciEgg[1], sciEgg[2]);
         eggRenderCheck = true;
+        eggHatch3.play();
       } else if (stationPicker == 5) {
         egg = new Model(spaEgg[1], spaEgg[2]);
         eggRenderCheck = true;
+        eggHatch3.play();
       }
       // EGG ==========================================================================================
-
-      //      delay(1500);
 
       // BABY ==========================================================================================
       stationPicker = int(random(1, 6));
@@ -281,36 +299,44 @@ void draw() {
         if (wormPicker == 1) {
           worm = new Model(humWorm[1], humWorm[2], humWorm[3], humWorm[4]);
           wormRenderCheck = true;
+          errorSound.play();
         } else if (wormPicker == 2) {
           worm = new Model(humWorm[5], humWorm[6], humWorm[7], humWorm[8]);
           wormRenderCheck = true;
+          errorSound.play();
         }
       } else if (stationPicker == 2) {
         wormPicker = int(random(1, 3));
         if (wormPicker == 1) {
           worm = new Model(innWorm[1], innWorm[2], innWorm[3], innWorm[4]);
           wormRenderCheck = true;
+          errorSound.play();
         } else if (wormPicker == 2) {
           worm = new Model(innWorm[5], innWorm[6], innWorm[7], innWorm[8]);
           wormRenderCheck = true;
+          errorSound.play();
         }
       } else if (stationPicker == 3) {
         wormPicker = int(random(1, 3));
         if (wormPicker == 1) {
           worm = new Model(livWorm[1], livWorm[2], livWorm[3], livWorm[4]);
           wormRenderCheck = true;
+          errorSound.play();
         } else if (wormPicker == 2) {
           worm = new Model(livWorm[5], livWorm[6], livWorm[7], livWorm[8]);
           wormRenderCheck = true;
+          errorSound.play();
         }
       } else if (stationPicker == 4) {
         wormPicker = int(random(1, 3));
         if (wormPicker == 1) {
           worm = new Model(sciWorm[1], sciWorm[2], sciWorm[3], sciWorm[4]);
           wormRenderCheck = true;
+          errorSound.play();
         } else if (wormPicker == 2) {
           worm = new Model(sciWorm[5], sciWorm[6], sciWorm[7], sciWorm[8]);
           wormRenderCheck = true;
+          errorSound.play();
         }
       }
       // WORM ==========================================================================================
@@ -453,10 +479,10 @@ void draw() {
 
 
 void renderScene(PGraphics g) { 
-  background(128);    // Set background of each window
+  background(0);    // Set background of each window
   lights();    // Lights creates shadowing effect
   //egg.render(g);
-  adult.render(g);
+  //adult.render(g);
   if (eggRenderCheck == true) {
     egg.render(g);
   }

@@ -1,0 +1,18 @@
+To see drive names
+
+diskutil list
+
+To backup: 
+
+sudo dd if=/dev/rdisk2 bs=4m | gzip > bitmorph.img.gz 
+
+Where /dev/sdb is the location of the SD card
+
+
+
+
+To restore the image onto a card:
+
+//gunzip --stdout bitmorph.img.gz | sudo dd bs=4m of=/dev/rdisk2
+gzip -dc bitmorph.img.gz | sudo dd bs=4m of=/dev/rdisk2
+
