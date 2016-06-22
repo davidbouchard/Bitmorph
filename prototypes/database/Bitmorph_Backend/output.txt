@@ -1,0 +1,17 @@
+Array
+(
+    [0] => Array
+        (
+            [HEXid] => test05
+            [current_state] => 1
+            [sprite_filename] => egg/inn_0101.png
+        )
+
+    [1] => Array
+        (
+            [HEXid] => test05
+            [current_state] => 2
+            [sprite_filename] => adult/liv_0201.png
+        )
+
+)

@@ -6,7 +6,7 @@ import netP5.*;
 import oscP5.*;
 
 OscP5 oscNet;
-int listeningPort = 12001;
+int listeningPort = 9001;
 NetAddress destination;
 String destinationIP = "127.0.0.1";
 int destinationPort = 9000;
@@ -41,6 +41,7 @@ void mousePressed() {
 
 
 void oscEvent(OscMessage incoming) {
+  println (incoming);
 }    // End of oscEvent
 
 
@@ -48,6 +49,7 @@ void oscEvent(OscMessage incoming) {
 
 
 void sendOscNet() {
-  OscMessage msg = new OscMessage("bcdefg");
+  OscMessage msg = new OscMessage("/scan");
+  msg.add("bcdefg");
   oscNet.send(msg, destination);
 }    // End of sendOscNet()
