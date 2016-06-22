@@ -238,17 +238,17 @@ void renderOverlay(PGraphics g) {
   g.pushMatrix();
   if (showAlreadyVisited == true || showFoundEverything == true) {
     // black background
-    g.rectMode(CENTER);
-    g.fill(255, 0, 0, 128); 
-    g.rect(g.width/2 + overlayX, overlayY, 420, 130);
+    //g.rectMode(CENTER);
+    //g.fill(255, 0, 0, 128); 
+    //g.rect(g.width/2 + overlayX, overlayY, 420, 130);
   }
   g.textFont(bitFont);
   g.textAlign(CENTER, CENTER);    
   g.fill(255); 
   g.textSize(24);
-  if (mirrorOverlay) g.scale(-1, 1);
   g.translate(g.width/2 + overlayX, 0);
-
+  if (mirrorOverlay) g.scale(-1, 1);
+  
   if (state == State.INFO) {
     g.text(areaFullNames.get(AREA), 0, overlayY);
     g.text("W: " + wIP, 0, overlayY+28);
