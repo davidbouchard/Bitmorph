@@ -124,9 +124,10 @@ void setup() {
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
   noCursor();
-
+  
   // this will run again everytime the INFO card is scanned, but just set initial values  
   checkIPs();
+  thread("heartbeat"); // start the heartbeat thread
 
   // this is used to show the full name on screen in the INFO state
   areaFullNames.put("liv", "Living Earth");
@@ -366,6 +367,21 @@ void setArea(String a) {
   updateConfigFile();
 }
 
+
+//===================================================
+void heartbeat() {
+  while(true) {
+    String url = "http://osc.rtanewmedia.ca/terminal-status/heartbeat/" + AREA + "/" + wIP;
+    println(url);
+    loadStrings(url);
+    try {
+      Thread.sleep(60*1000*15);
+    }
+    catch(Exception e) {
+      
+    }
+  }
+}
 
 //===================================================
 void updateConfigFile() {
