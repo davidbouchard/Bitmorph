@@ -101,12 +101,12 @@ class Sounds {
   }
 
   void playGrow() {
-    int r = 1 + (int)random(10);  
+    int r = (int)random(10);  
     grow.get(r).trigger();
   }
 
   void playSFX() {
-    int r = 1 + (int)random(12);  
+    int r = (int)random(12);  
     sfx.get(r).trigger();
   }
   
