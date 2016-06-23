@@ -16,7 +16,7 @@ void scan(String code) {
   }
   
   prevScan = code;
-  scanTimer = new Timer(1000); // 1 second before the next scan is possible 
+  scanTimer = new Timer(2000); // 1 second before the next scan is possible 
 
   sounds.playScan();
   boolean triggerInfo = false;

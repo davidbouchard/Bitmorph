@@ -316,8 +316,6 @@ void renderScene(PGraphics g) {
       else {
         sounds.fadeOut();
         // load new sounds 
-        sounds.loadSFX();
-        sounds.loadGrow();
         state = State.IDLE;
       }
     }
@@ -364,8 +362,7 @@ void drawMask(float[][] mask, float xx, float yy) {
 
 //===================================================
 void setArea(String a) {
-  AREA = a;
-  sounds.loadMusic();
+  AREA = a;  
   updateConfigFile();
 }
 
