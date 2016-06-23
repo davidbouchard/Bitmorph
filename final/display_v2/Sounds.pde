@@ -11,6 +11,8 @@ class Sounds {
 
   HashMap<String, FilePlayer> music = new HashMap();
   FilePlayer nowPlaying; 
+  Sampler nowGrow;
+  Sampler nowSfx;
 
   int CRACK = 0;
   int GROW = 1;
@@ -18,7 +20,7 @@ class Sounds {
   int VICTORY = 3;
   int stage;
 
-  int voices = 1;
+  int voices = 2;
 
   AudioOutput out;
 
@@ -27,52 +29,69 @@ class Sounds {
     out = minim.getLineOut();
     FilePlayer fp = null;
     fp = new FilePlayer(minim.loadFileStream("sounds/music/inn.wav"));
-    fp.patch(out);
+    //fp.patch(out);
     music.put("inn", fp);
     
     fp = new FilePlayer(minim.loadFileStream("sounds/music/sci.wav"));
-    fp.patch(out);
+    //fp.patch(out);
     music.put("sci", fp);
     
     fp = new FilePlayer(minim.loadFileStream("sounds/music/liv.wav"));
-    fp.patch(out);
+    //fp.patch(out);
     music.put("liv", fp);
     
     fp = new FilePlayer(minim.loadFileStream("sounds/music/spa.wav"));
-    fp.patch(out);
+    //fp.patch(out);
     music.put("spa", fp);
     
     fp = new FilePlayer(minim.loadFileStream("sounds/music/hum.wav"));
-    fp.patch(out);
+    //fp.patch(out);
     music.put("hum", fp);
     
     eggCrack = new Sampler("sounds/egg.wav", voices, minim);
-    eggCrack.patch(out);
+    //eggCrack.patch(out);
     scan = new Sampler("sounds/scan.wav", voices, minim);
-    scan.patch(out);
+    //scan.patch(out);
     victory = new Sampler("sounds/victory.wav", voices, minim);
-    victory.patch(out);
+    //victory.patch(out);
 
     for (int i=1; i <= 10; i++) {
       Sampler g = new Sampler("sounds/grow/grow" + i + ".wav", voices, minim); 
       grow.add(g);
-      g.patch(out);
+      //g.patch(out);
     }
     for (int i=1; i <= 12; i++) {
       Sampler g = new Sampler("sounds/sfx/sfx" + i + ".wav", voices, minim); 
       sfx.add(g);
-      g.patch(out);
+      //g.patch(out);
     }
   }
 
   void playMusic() {
-    if (nowPlaying != null) nowPlaying.pause();
+    if (nowPlaying != null) {
+      nowPlaying.pause();
+      nowPlaying.unpatch(out);
+    }
     nowPlaying = music.get(AREA);
+    nowPlaying.patch(out);
+    nowPlaying.rewind();
     nowPlaying.loop();
+  }
+  
+  void reset() {
+    if (nowPlaying != null) nowPlaying.unpatch(out);
+    scan.unpatch(out);
+    eggCrack.unpatch(out);
+    victory.unpatch(out); 
+    if (nowSfx != null) nowSfx.unpatch(out); 
+    if (nowGrow != null) nowGrow.unpatch(out);
   }
 
   void fadeOut() {
-    if (nowPlaying != null) nowPlaying.pause();
+    if (nowPlaying != null) {
+      nowPlaying.pause();
+      nowPlaying.unpatch(out);
+    }
   }
 
   void setStage(int s) {
@@ -81,6 +100,7 @@ class Sounds {
 
   void playTransition() {
     if (stage == CRACK) {
+      eggCrack.patch(out);
       eggCrack.trigger();
       stage = GROW;
     } else if (stage == GROW) {
@@ -90,6 +110,7 @@ class Sounds {
     } else if (stage == SFX) {
       playSFX();
     } else if (stage == VICTORY) {
+      victory.patch(out);
       victory.trigger();
       // don't play the victory sound twice
       stage = GROW;
@@ -97,17 +118,22 @@ class Sounds {
   }
 
   void playScan() {
+    scan.patch(out);
     scan.trigger();
   }
 
   void playGrow() {
     int r = (int)random(10);  
-    grow.get(r).trigger();
+    nowGrow = grow.get(r);
+    nowGrow.patch(out);
+    nowGrow.trigger();
   }
 
   void playSFX() {
     int r = (int)random(12);  
-    sfx.get(r).trigger();
+    nowSfx = sfx.get(r);
+    nowSfx.patch(out);
+    nowSfx.trigger();
   }
   
   /*

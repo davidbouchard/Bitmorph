@@ -6,6 +6,8 @@ Timer scanTimer = new Timer(1000);
 void scan(String code) {       
   println("Received code: " + code);
   
+  sounds.reset();
+  
   // Trim to 4 characters just in case one of the old cards show up
   //code = code.substring(0, 4); 
   
