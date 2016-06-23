@@ -53,12 +53,12 @@ class Sounds {
     victory = new Sampler("sounds/victory.wav", voices, minim);
     victory.patch(out);
 
-    for (int i=0; i < 10; i++) {
+    for (int i=1; i <= 10; i++) {
       Sampler g = new Sampler("sounds/grow/grow" + i + ".wav", voices, minim); 
       grow.add(g);
       g.patch(out);
     }
-    for (int i=0; i < 12; i++) {
+    for (int i=1; i <= 12; i++) {
       Sampler g = new Sampler("sounds/sfx/sfx" + i + ".wav", voices, minim); 
       sfx.add(g);
       g.patch(out);
