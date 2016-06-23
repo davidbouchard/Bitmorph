@@ -66,11 +66,13 @@ class Sounds {
   
   void loadGrow() {
     int r = 1 + (int)random(10);
+    if (grow != null) grow.close();
     grow = minim.loadSample("sounds/grow/grow" + r + ".wav");
   }
   
   void loadSFX() {
     int r = 1 + (int)random(12);
+    if (sfx != null) sfx.close();
     sfx = minim.loadSample("sounds/sfx/sfx" + r + ".wav");
   }
   
