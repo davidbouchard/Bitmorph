@@ -320,7 +320,9 @@ void renderScene(PGraphics g) {
     //---------------------------------------------
   case INFO:
     // The info will get displayed in the overlay 
-    if (timer.isFinished()) state = State.IDLE;
+    if (overlay.timeout.isFinished()) {
+      state = State.IDLE;
+    }
     break;
 
     //---------------------------------------------
@@ -361,6 +363,7 @@ void drawMask(float[][] mask, float xx, float yy) {
 //===================================================
 void setArea(String a) {
   AREA = a;  
+  changeToInfoState();
   updateConfigFile();
 }
 

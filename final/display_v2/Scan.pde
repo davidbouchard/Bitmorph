@@ -6,17 +6,18 @@ Timer scanTimer = new Timer(1000);
 void scan(String code) {       
   println("Received code: " + code);
   
+  // Reset all sounds right before a scan 
   sounds.reset();
   
   // Trim to 4 characters just in case one of the old cards show up
   //code = code.substring(0, 4); 
   
+  // Ignore repeated scans
   if (code.equals(prevScan) && scanTimer.isFinished() == false) {
-    println("duplicate scan");  
+    println("Duplicate scan: " + code);  
     scanTimer = new Timer(1000);
     return;
-  }
-  
+  }  
   prevScan = code;
   scanTimer = new Timer(2000); // 1 second before the next scan is possible 
 
@@ -56,7 +57,7 @@ void scan(String code) {
 
   if (triggerInfo) {
     changeToInfoState();
-    return; // exit here
+    return; // exit here! important to avoid creating bad characters
   }
 
   // used in debugging 
@@ -64,7 +65,6 @@ void scan(String code) {
   //println("using random area:" + area);
 
   String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + AREA;  
-
   PImage img = loadImage(url, "png");
   
   // Load the spritesheet 
@@ -73,7 +73,7 @@ void scan(String code) {
   sounds.playMusic();
   
   if (s.firstVisit) {
-    println("FIRST VISIT");
+    println("FIRST VISIT: " + code);
     prevModel.setImage(s.pFront, s.pFront_d, s.pBack, s.pBack_d);  
     model.setImage(s.front, s.front_d, s.back, s.back_d);
 
@@ -91,7 +91,7 @@ void scan(String code) {
     mAnim.reset();
     
   } else {
-    println("ALREADY VISITED");
+    println("ALREADY VISITED: " + code);
     if (s.stage >= 5) {
       overlay.setMessage(VICTORY_MESSAGE);
       sounds.setStage(sounds.VICTORY);      

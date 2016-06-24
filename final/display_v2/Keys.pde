@@ -25,19 +25,19 @@ void keyPressed() {
     ks1.load();
     break;
 
-  case '1':   
+  case '7':   
     ap.setGridColor(dc);
     ap = surface1;
     ap.setGridColor(ac);
     break;
 
-  case '2':   
+  case '8':   
     ap.setGridColor(dc);
     ap = surface2;
     ap.setGridColor(ac);
     break;
 
-  case '3':   
+  case '9':   
     ap.setGridColor(dc);
     ap = surface3;
     ap.setGridColor(ac);
@@ -62,32 +62,27 @@ void keyPressed() {
     if (moveBy >0) moveBy -= 1;
     break;
    
-  case 'y':
+  case '1':
     setArea("liv");
-    println("We are now: " + areaFullNames.get(AREA));
     break;
   
-  case 'u':
+  case '2':
     setArea("hum");
-    println("We are now: " + areaFullNames.get(AREA));
     break;
     
-  case 'i':
+  case '3':
     setArea("inn");
-    println("We are now: " + areaFullNames.get(AREA));
     break;
   
-  case 'o':
+  case '4':
     setArea("sci");
-    println("We are now: " + areaFullNames.get(AREA));
     break;
   
-  case 'p':
+  case '5':
     setArea("spa");
-    println("We are now: " + areaFullNames.get(AREA));
     break;  
   
-  case 'I':
+  case 'i':
     changeToInfoState();
     break;
   
