@@ -17,12 +17,21 @@ def gen(baseCode, n):
         print url
         file = cStringIO.StringIO(urllib.urlopen(url).read())
         img = Image.open(file)
-        crop = img.crop(box)
-        print crop
+        
+        #save the original
+        try:
+            os.makedirs(os.path.join(baseCode,"raw"))
+        except:
+            pass
+        f = "%s/%s/%s%s_%d_%s.png" % (baseCode, "raw", baseCode, n, i, a)
+        img.save(f)
+
+        crop =  img.crop(box)
+        #print crop
         out.paste(crop, (i*50, 0, (i+1)*50, 50))
     
     # grab the last item
-    crop = img.crop((100, 0, 150, 50)) 
+    crop = img.crop((50, 0, 100, 50)) 
     out.paste(crop, (250, 0, 300, 50))
     
     # also grab the 2nd character from the last image 
@@ -37,8 +46,8 @@ except:
     pass
 
 
-for i in range(0, 10): 
-    gen(baseCode, "%s" % i)
+for i in range(0, 99): 
+    gen(baseCode, "%02d" % i)
     
 
 
