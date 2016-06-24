@@ -3,16 +3,28 @@ TODOLIST:
 - add disable_audio_dither=1 to /boot/config.txt
 - check desktop simlinks 
 - do a final git pull
-- configure WIFI credentials if we receive them 
+- configure WIFI credentials if we receive them (not likely)
+   /etc/wpa_supplicant/wpa_supplicant.conf 
   
 - get router from Ashley before she leaves
 
 Notes about Raspberry PI:
 - ping before ssh? 
+
+ping 169.254.0.1
+ssh pi@169.254.0.1
+
 - pkill java seems to trigger a restart of the app.  not when you quit it properly though. maybe try different signals? 
 - talk about startup scripts
-- talk about repository location 
+- talk about repository locations 
 - talk about config.properties 
+- talk about keyboard options 
+
+Raspberry PI credentials: 
+user: pi
+password: raspberry 
+
+
 
 
 Website notes:
