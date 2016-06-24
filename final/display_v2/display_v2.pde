@@ -27,6 +27,9 @@ int INFO_TIMEOUT; // timeout for the info screen
 int TIMEOUT;  // in seconds, this controls the amount of time the creature will stay on the screen 
 float SPIN_SPEED_MAX = 0.005;
 
+int MAX_PIXEL_SIZE;
+int MIN_PIXEL_SIZE;
+
 OscP5 osc;
 int listeningPort = 9000;
 
@@ -38,6 +41,8 @@ Timer timer = new Timer(1000);
 Timer overlayTimer = new Timer(1000);
 
 Model arrow;
+Model bounds_big;
+Model bounds_small;
 
 String lastCode = "";
 String[] areaNames = {"sci", "hum", "liv", "inn", "spa"};
@@ -45,7 +50,7 @@ HashMap<String, String> areaFullNames = new HashMap();
 
 enum State {
   FADE_IN_PREVIOUS, FADE_IN_WAIT, FADE_IN_CURRENT, FADE_OUT, 
-    SPIN, IDLE, INFO
+    SPIN, IDLE, INFO, BOUNDS_BIG, BOUNDS_SMALL
 } 
 
 // The current area
@@ -103,6 +108,9 @@ void settings() {
     INFO_TIMEOUT = Integer.parseInt(configFile.getProperty("INFO_TIMEOUT")); 
     TIMEOUT = Integer.parseInt(configFile.getProperty("TIMEOUT"));
 
+    MAX_PIXEL_SIZE = Integer.parseInt(configFile.getProperty("MAX_PIXEL_SIZE"));
+    MIN_PIXEL_SIZE = Integer.parseInt(configFile.getProperty("MIN_PIXEL_SIZE"));
+
     int fs = Integer.parseInt(configFile.getProperty("FULLSCREEN"));
     if (fs == 1) {
       fullScreen(P3D);
@@ -124,7 +132,7 @@ void setup() {
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
   noCursor();
-  
+
   // this will run again everytime the INFO card is scanned, but just set initial values  
   checkIPs();
   thread("heartbeat"); // start the heartbeat thread
@@ -156,6 +164,17 @@ void setup() {
   arrow = new Model();
   PImage arrowImage = loadImage("arrow.png");
   arrow.setImage(arrowImage, null, arrowImage, null); 
+
+  // Some test graphics to calibrate
+  bounds_big = new Model();
+  PImage boundsBigImg = loadImage("bounds_big.png");
+  bounds_big.setImage(boundsBigImg, null, boundsBigImg, null); 
+  bounds_big.fillMask();
+
+  bounds_small = new Model();
+  PImage boundsSmallImg = loadImage("bounds_small.png");
+  bounds_small.setImage(boundsSmallImg, null, boundsSmallImg, null); 
+  bounds_small.fillMask();
 
   ks1 = new Keystone(this);
   surface1 = ks1.createCornerPinSurface(widthLonger, widthShorter, 20);
@@ -249,7 +268,7 @@ void renderOverlay(PGraphics g) {
   g.textSize(24);
   g.translate(g.width/2 + overlayX, 0);
   if (mirrorOverlay) g.scale(-1, 1);
-  
+
   if (state == State.INFO) {
     g.text(areaFullNames.get(AREA), 0, overlayY);
     g.text("W: " + wIP, 0, overlayY+28);
@@ -338,6 +357,21 @@ void renderScene(PGraphics g) {
     // The info will get displayed in the overlay 
     if (timer.isFinished()) state = State.IDLE;
     break;
+
+    //---------------------------------------------
+  case BOUNDS_BIG: 
+    showOverlay = false;
+    spinSpeed = SPIN_SPEED_MAX;
+    spinAngle += spinSpeed;
+    bounds_big.renderFrontOnly(g);
+    break; 
+    //---------------------------------------------
+  case BOUNDS_SMALL:
+    showOverlay = false;
+    spinSpeed = SPIN_SPEED_MAX;
+    spinAngle += spinSpeed;
+    bounds_small.renderFrontOnly(g);
+    break;
   }
 }
 
@@ -370,15 +404,13 @@ void setArea(String a) {
 
 //===================================================
 void heartbeat() {
-  while(true) {
+  while (true) {
     String url = "http://osc.rtanewmedia.ca/terminal-status/heartbeat/" + AREA + "/" + wIP;
-    println(url);
     loadStrings(url);
     try {
       Thread.sleep(60*1000*15);
     }
     catch(Exception e) {
-      
     }
   }
 }

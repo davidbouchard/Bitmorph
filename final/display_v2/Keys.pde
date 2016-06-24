@@ -8,13 +8,12 @@ float moveBy = 10;
 void keyPressed() {
   switch(key) {
   
-  case 'f': 
-    sounds.fadeOut();
-    break;
-
+  // test code 
   case ' ':
     scan("a006");
     break;
+  
+    // toggle Keystone calibration mode 
   case 'c':
     cursor();
     ks1.toggleCalibration();
@@ -70,13 +69,6 @@ void keyPressed() {
   case '-':
     if (moveBy >0) moveBy -= 1;
     break;
-
-  case 'x':
-    scaleSurface(2);
-    break;
-  case 'X':
-    scaleSurface(-2);
-    break;
    
   case 'y':
     setArea("liv");
@@ -102,12 +94,35 @@ void keyPressed() {
     setArea("spa");
     println("We are now: " + areaFullNames.get(AREA));
     break;  
+  
+  case 'I':
+    state = State.INFO;
+    break;
+  
+  case '{':
+    state = State.BOUNDS_SMALL;
+    break;
+     
+  case '}':
+    state = State.BOUNDS_BIG;
+    break;
+  
+  case '[':
+    if (state == State.BOUNDS_SMALL) MAX_PIXEL_SIZE--; 
+    if (state == State.BOUNDS_BIG) MIN_PIXEL_SIZE--;
+    println(MAX_PIXEL_SIZE + " " + MIN_PIXEL_SIZE);
+    break;
+  
+  case ']':
+    if (state == State.BOUNDS_SMALL) MAX_PIXEL_SIZE++; 
+    if (state == State.BOUNDS_BIG) MIN_PIXEL_SIZE++;
+    println(MAX_PIXEL_SIZE + " " + MIN_PIXEL_SIZE);
+    break;
+  
   }
   
-}
-
-// Not working yet
-void scaleSurface(float sf) {
+  
+ 
 }
 
 void moveSurface() {

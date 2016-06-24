@@ -10,6 +10,8 @@ class Model {
   int centerX = 25;
   int centerY = 25;
 
+  BoundingBox bb; 
+
   float [][] mask = new float[50][50];
 
   PShape frontCache;
@@ -43,10 +45,10 @@ class Model {
     back = theBack;
     backDepth = theBackDepth;
     loaded = true;
-    
+
     // create the pixel mask used for transitions and find the model's bounding box 
-    BoundingBox bb = new BoundingBox();
-    
+    bb = new BoundingBox();
+
     mask = new float[50][50];
     for (int y = 0; y < front.height; y++) { 
       for (int x = 0; x < front.width; x++) {
@@ -55,21 +57,38 @@ class Model {
         if (a == 255) {
           mask[y][x] = 0;
           bb.extend(x, y);
-        }
-        else mask[y][x] = -1;
+        } else mask[y][x] = -1;
       }
     }
-    
+
     // DEBUG ~ making sure the bounding box is correct
     //front.set(bb.centerX, bb.centerY, color(255));
-    
+    if (bb.h != 0) {
+      pSize = (int)map(bb.h, 16, 50, MAX_PIXEL_SIZE, MIN_PIXEL_SIZE);
+      centerX = 25;
+      centerY = 25;
+      // only shift centerY, not centerX 
+      //centerX -= (centerX-bb.centerX);
+      centerY -= (centerY-bb.centerY);
+    }
+    //println(this);
+    //println(bb.centerX + " " + bb.centerY);
+    //println(centerX + " " + centerY);
+    //println(bb.h);
+
     frontCache = createShape();
     buildCache(frontCache, front, frontDepth, 1);
-    
+
     backCache = createShape();
     buildCache(backCache, back, backDepth, -1);
-    
-    
+  }
+
+  void fillMask() {
+    for (int i=0; i < 50; i++) { 
+      for (int j=0; j < 50; j++) { 
+        mask[i][j]=1;
+      }
+    }
   }
 
   void setBlank() {
@@ -83,7 +102,7 @@ class Model {
     // Build the cached version for spinning 
     cache.beginShape(TRIANGLES); 
     cache.noStroke();
-    
+
     int[] mask = {0, 0, 0, 0, 0, 0}; // not used yet 
     for (int y = 0; y < image.height; y++) { 
       for (int x = 0; x < image.width; x++) {
@@ -104,7 +123,7 @@ class Model {
           if (brightness(pixel) < 40) { 
             if (hasBlankNeighbour(image, x, y)) pixel = color(33);
           }
- 
+
           cache.fill(pixel);
           box_tri(cache, xx, yy, side * extrude/2, pSize, extrude, mask);
         }
@@ -125,9 +144,9 @@ class Model {
   void renderFrontOnly(PGraphics g) {
     if (!loaded) return;
     g.noStroke();
-    renderSide(g, front, frontDepth, 1); 
+    renderSide(g, front, frontDepth, 1);
   }
- 
+
   //------------------------------------------------------------
   void renderFrontOnlyRect(PGraphics g) {
     PImage image = front;
@@ -144,7 +163,7 @@ class Model {
           float yy = (y-centerY) * pSize;  // Scale and center the new pixel on the y axis
 
           float b = 255;
-          
+
           // check the mask 
           if (mask[y][x] <= 0) {
             continue;
@@ -173,7 +192,7 @@ class Model {
       }    // End of x coordinate parsing
     }
   }
-  
+
   void renderFast(PGraphics g) {
     if (!loaded) return;
     g.shape(frontCache);
@@ -187,6 +206,10 @@ class Model {
         color pixel = image.get(x, y);  
         float a = alpha(pixel);  // Saves the alpha (transparency)                  
         if (a == 255) { // If the alpha is 100%
+
+          if (bb.h != 0) {
+            pSize = (int)map(bb.h, 16, 50, MAX_PIXEL_SIZE, MIN_PIXEL_SIZE);
+          }
 
           float xx = (x-centerX) * pSize;  // Scale and center the new pixel on the x axis
           float yy = (y-centerY) * pSize;  // Scale and center the new pixel on the y axis
@@ -325,32 +348,32 @@ void box_tri(PShape s, float x, float y, float z, float d, float zd, int[] mask)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class BoundingBox {
-  
+
   int minX = 50;
   int minY = 50; 
   int maxX = 0;
   int maxY = 0;
-  
+
   int x;
   int y; 
   int w; 
   int h; 
-  
+
   int centerX;
   int centerY;
- 
+
   void extend(int nx, int ny) { 
-     minX = min(nx, minX); 
-     maxX = max(nx, maxX); 
-     minY = min(ny, minY); 
-     maxY = max(ny, maxY); 
-     
-     x = minX;
-     y = minY;
-     w = maxX - minX;
-     h = maxY - minY;
-     
-     centerX = x + w/2;
-     centerY = y + h/2;
+    minX = min(nx, minX); 
+    maxX = max(nx, maxX); 
+    minY = min(ny, minY); 
+    maxY = max(ny, maxY); 
+
+    x = minX;
+    y = minY;
+    w = maxX - minX;
+    h = maxY - minY;
+
+    centerX = x + w/2;
+    centerY = y + h/2;
   }
 }
