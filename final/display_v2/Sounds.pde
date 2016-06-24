@@ -28,23 +28,23 @@ class Sounds {
     minim = new Minim(parent);    
     out = minim.getLineOut();
     FilePlayer fp = null;
-    fp = new FilePlayer(minim.loadFileStream("sounds/music/inn.wav"));
+    fp = new FilePlayer(minim.loadFileStream("sounds/music/inn_v2.wav"));
     //fp.patch(out);
     music.put("inn", fp);
     
-    fp = new FilePlayer(minim.loadFileStream("sounds/music/sci.wav"));
+    fp = new FilePlayer(minim.loadFileStream("sounds/music/sci_v2.wav"));
     //fp.patch(out);
     music.put("sci", fp);
     
-    fp = new FilePlayer(minim.loadFileStream("sounds/music/liv.wav"));
+    fp = new FilePlayer(minim.loadFileStream("sounds/music/liv_v2.wav"));
     //fp.patch(out);
     music.put("liv", fp);
     
-    fp = new FilePlayer(minim.loadFileStream("sounds/music/spa.wav"));
+    fp = new FilePlayer(minim.loadFileStream("sounds/music/spa_v2.wav"));
     //fp.patch(out);
     music.put("spa", fp);
     
-    fp = new FilePlayer(minim.loadFileStream("sounds/music/hum.wav"));
+    fp = new FilePlayer(minim.loadFileStream("sounds/music/hum_v2.wav"));
     //fp.patch(out);
     music.put("hum", fp);
     
