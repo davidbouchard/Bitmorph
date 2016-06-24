@@ -40,6 +40,8 @@ MaskAnimator mAnim = new MaskAnimator();
 Timer timer = new Timer(1000); 
 Timer overlayTimer = new Timer(1000);
 
+Overlay overlay;
+
 Model arrow;
 Model bounds_big;
 Model bounds_small;
@@ -85,10 +87,6 @@ PFont bitFont;
 PJOGL pgl;
 GL2ES2 gl;
 
-boolean showAlreadyVisited = false;
-boolean showFoundEverything = false;
-boolean showOverlay = false;
-
 Properties configFile;
 
 //===================================================
@@ -132,6 +130,8 @@ void setup() {
   // required on the PI or textures won't work
   hint(DISABLE_TEXTURE_MIPMAPS);
   noCursor();
+
+  overlay = new Overlay();
 
   // this will run again everytime the INFO card is scanned, but just set initial values  
   checkIPs();
@@ -235,54 +235,22 @@ void draw() {
   surface2.render(middle);
   surface3.render(right);
 
-  renderOverlay(g);
+  // render the overlay on the main graphics surface 
+  overlay.render(g);
 
   if (ks1.isCalibrating()) {
     textAlign(LEFT);
     textSize(12);    
-    text("Lock sides: " + lockSides, 30, 30);
-    text("Move by: " + moveBy, 30, 60);
-    text("Overlay Y: " + overlayY, 30, 90);
+    text("Lock sides: " + lockSides, 30, 25);
+    text("Move by: " + moveBy, 30, 50);
+    text("Overlay Y: " + overlayY, 30, 75);
+    text("Min Pixel Size: " + MIN_PIXEL_SIZE, 30, 100);
+    text("Max Pixel Size: " + MAX_PIXEL_SIZE, 30, 125);
   }
 }
 
 //===================================================
 // Use for text / this will not rotate and only appear in the middle panel 
-
-int overlayY;
-int overlayX; 
-
-void renderOverlay(PGraphics g) {  
-  if (showOverlay == false) return;
-  //g.noLights();
-  g.pushMatrix();
-  if (showAlreadyVisited == true || showFoundEverything == true) {
-    // black background
-    //g.rectMode(CENTER);
-    //g.fill(255, 0, 0, 128); 
-    //g.rect(g.width/2 + overlayX, overlayY, 420, 130);
-  }
-  g.textFont(bitFont);
-  g.textAlign(CENTER, CENTER);    
-  g.fill(255); 
-  g.textSize(24);
-  g.translate(g.width/2 + overlayX, 0);
-  if (mirrorOverlay) g.scale(-1, 1);
-
-  if (state == State.INFO) {
-    g.text(areaFullNames.get(AREA), 0, overlayY);
-    g.text("W: " + wIP, 0, overlayY+28);
-    g.text("E: " + eIP, 0, overlayY+54);
-    g.text("P: " + pIP, 0, overlayY+78);
-  } else {
-    if (showFoundEverything) {
-      g.text("Great job!\nYou found\nall the terminals!", 0, overlayY);
-    } else if (showAlreadyVisited) {
-      g.text("Already visited!\nTry looking for\nanother terminal!", 0, overlayY);
-    }
-  }
-  g.popMatrix();
-}
 
 //===================================================
 void renderScene(PGraphics g) {
@@ -328,7 +296,6 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case SPIN:
-    showOverlay = true;
     spinAngle += spinSpeed;
     if (spinSpeed < SPIN_SPEED_MAX) spinSpeed += 0.0001; 
     if (timer.isFinished()) {
@@ -345,7 +312,6 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case IDLE:
-    showOverlay = false;
     spinSpeed = SPIN_SPEED_MAX;
     spinAngle += spinSpeed;
     arrow.renderFast(g);
@@ -353,21 +319,18 @@ void renderScene(PGraphics g) {
 
     //---------------------------------------------
   case INFO:
-    showOverlay = true;
     // The info will get displayed in the overlay 
     if (timer.isFinished()) state = State.IDLE;
     break;
 
     //---------------------------------------------
   case BOUNDS_BIG: 
-    showOverlay = false;
     spinSpeed = SPIN_SPEED_MAX;
     spinAngle += spinSpeed;
     bounds_big.renderFrontOnly(g);
     break; 
     //---------------------------------------------
   case BOUNDS_SMALL:
-    showOverlay = false;
     spinSpeed = SPIN_SPEED_MAX;
     spinAngle += spinSpeed;
     bounds_small.renderFrontOnly(g);
@@ -413,6 +376,17 @@ void heartbeat() {
     catch(Exception e) {
     }
   }
+}
+
+//===================================================
+void changeToInfoState() {
+  checkIPs(); 
+  state = State.INFO;
+  String m = areaFullNames.get(AREA) + "\n" +
+            "WLAN: " + wIP + "\n" + 
+            "ETH: " + eIP + "\n" + 
+            "PUBLIC: " + pIP; 
+  overlay.setMessage(m);
 }
 
 //===================================================

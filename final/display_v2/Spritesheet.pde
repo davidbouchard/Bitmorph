@@ -21,10 +21,9 @@ class SpriteSheet {
 
   SpriteSheet(PImage s) {
     sheet = s;  
-
+    
     // check the image dimensions 
     int w = s.width;
-    println(w);
     if (w == 100) { 
       // This is NOT the first visit 
       firstVisit = false;
@@ -58,8 +57,7 @@ class SpriteSheet {
         stage++;
       }
     }
-    println("Stage: " + stage);
-    println(visited);
+    println("Stage: " + stage);    
   }
 
   boolean hasVisitedAll() {

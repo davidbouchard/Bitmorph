@@ -25,14 +25,6 @@ void keyPressed() {
     ks1.load();
     break;
 
-  case 'v':
-    showAlreadyVisited = !showAlreadyVisited;
-    break;
-
-  case 'w':
-    showFoundEverything = !showFoundEverything;    
-    break;
-
   case '1':   
     ap.setGridColor(dc);
     ap = surface1;
@@ -96,7 +88,7 @@ void keyPressed() {
     break;  
   
   case 'I':
-    state = State.INFO;
+    changeToInfoState();
     break;
   
   case '{':
@@ -117,12 +109,9 @@ void keyPressed() {
     if (state == State.BOUNDS_SMALL) MAX_PIXEL_SIZE++; 
     if (state == State.BOUNDS_BIG) MIN_PIXEL_SIZE++;
     println(MAX_PIXEL_SIZE + " " + MIN_PIXEL_SIZE);
-    break;
-  
+    break;  
   }
   
-  
- 
 }
 
 void moveSurface() {

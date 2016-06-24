@@ -55,9 +55,7 @@ void scan(String code) {
   }
 
   if (triggerInfo) {
-    checkIPs(); 
-    timer = new Timer(1000 * INFO_TIMEOUT);
-    state = State.INFO;
+    changeToInfoState();
     return; // exit here
   }
 
@@ -67,12 +65,8 @@ void scan(String code) {
 
   String url = "http://osc.rtanewmedia.ca/character-update/" + code + "/" + AREA;  
 
-  PImage img = null;
-  if (code.equals("abcd")) img = loadImage("test.png");
-  else {
-    img = loadImage(url, "png");
-  }
-
+  PImage img = loadImage(url, "png");
+  
   // Load the spritesheet 
   SpriteSheet s = new SpriteSheet(img);
 
@@ -80,7 +74,6 @@ void scan(String code) {
   
   if (s.firstVisit) {
     println("FIRST VISIT");
-    showAlreadyVisited = false;
     prevModel.setImage(s.pFront, s.pFront_d, s.pBack, s.pBack_d);  
     model.setImage(s.front, s.front_d, s.back, s.back_d);
 
@@ -88,10 +81,7 @@ void scan(String code) {
     if (s.stage == 1) sounds.setStage(sounds.CRACK);
     if (s.stage == 2 || s.stage == 3 || s.stage == 4) sounds.setStage(sounds.GROW);    
     if (s.stage >= 5) {
-      println("VICTORY STAGE");
-      showFoundEverything = true;
-      showAlreadyVisited = false;
-      showOverlay = true;
+      overlay.setMessage(VICTORY_MESSAGE);
       sounds.setStage(sounds.VICTORY);
     }
 
@@ -102,22 +92,20 @@ void scan(String code) {
     
   } else {
     println("ALREADY VISITED");
-    showAlreadyVisited = true; 
-    showOverlay = true;
     if (s.stage >= 5) {
-      sounds.setStage(sounds.VICTORY);
-      showAlreadyVisited = false;
-      showFoundEverything = true;
+      overlay.setMessage(VICTORY_MESSAGE);
+      sounds.setStage(sounds.VICTORY);      
     }
     else {
+      overlay.setMessage(ALREADY_VISITED_MESSAGE);
       sounds.setStage(sounds.GROW);
     }
+    
     // Update the model objects
     model.setImage(s.front, s.front_d, s.back, s.back_d);
-    prevModel.setBlank();    
+    prevModel.setBlank(); // no previous model since we've already visited     
     state = State.FADE_IN_CURRENT;
     spinAngle = -PI/2;
     mAnim.reset();
   }
- 
 }
