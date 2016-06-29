@@ -74,6 +74,7 @@ void scan(String code) {
   
   if (s.firstVisit) {
     println("FIRST VISIT: " + code);
+    overlay.reset();
     prevModel.setImage(s.pFront, s.pFront_d, s.pBack, s.pBack_d);  
     model.setImage(s.front, s.front_d, s.back, s.back_d);
 

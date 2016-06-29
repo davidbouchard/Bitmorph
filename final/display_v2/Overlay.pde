@@ -51,4 +51,9 @@ class Overlay {
     timeout = new Timer(INFO_TIMEOUT*1000);
   }
   
+  void reset() {
+    message = "";
+    fade = 0;
+    timeout = new Timer(0);
+  }
 }
