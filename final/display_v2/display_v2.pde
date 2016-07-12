@@ -371,12 +371,13 @@ void setArea(String a) {
 //===================================================
 void heartbeat() {
   while (true) {
-    String url = "http://osc.rtanewmedia.ca/terminal-status/heartbeat/" + AREA + "/" + wIP;
-    loadStrings(url);
     try {
+      String url = "http://osc.rtanewmedia.ca/terminal-status/heartbeat/" + AREA + "/" + wIP;
+      loadStrings(url);
       Thread.sleep(60*1000*15);
     }
     catch(Exception e) {
+      println(e);
     }
   }
 }

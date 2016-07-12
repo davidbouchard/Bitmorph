@@ -13,7 +13,7 @@ import os
 ledPin = 7
 
 timer = time.time() 
-delay = 2
+delay = 1
 
 if __name__ == "__main__":
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                    print e
         else:
             # wait before shutting down 
-            if time.time() > timer+delay):
+            if time.time() > timer+delay:
                 prevScan = None
                 # turn OFF led
                 GPIO.output(ledPin, True)
