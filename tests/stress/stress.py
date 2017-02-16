@@ -17,7 +17,7 @@ if __name__ == "__main__":
     print "Sending OSC to", send_address, "port:", send_port
     
     base = args.base
-    i = 0
+    i = 10
     while (True):
        accountID = "{}{:03d}".format(base, i)        
        i = i + 1
@@ -29,6 +29,8 @@ if __name__ == "__main__":
            osc.send(msg)
        except Exception as e:
            print e
-           
-       time.sleep(120)
+       
+       if i >= 200: i = 10
+
+       time.sleep(180)
         
